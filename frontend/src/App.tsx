@@ -1,20 +1,55 @@
 import { useState } from "react";
-import { createGlobalStyle } from "styled-components";
-import Header from "./Header";
+import styled, { createGlobalStyle } from "styled-components";
+import Aside from "./components/Aside";
+import Header from "./components/Header";
+import HistoryButton from "./components/HistoryButton";
+import Logo from "./components/Logo";
+import Main from "./components/Main";
+import Modal from "./components/Modal";
 
 export default function App() {
-  const [count, setCount] = useState(0);
+  const [isUserLogOpened, setIsUserLogOpened] = useState<boolean>(false);
+  const [message, setMessage] = useState<string>("test");
 
+  function clearMessage() {
+    setMessage("");
+  }
+
+  function dummyAction() {
+    clearMessage()
+  }
+
+  function toggleActiveUserLog() {
+    setIsUserLogOpened((bool) => !bool);
+  }
+
+  const Style = styled.div`
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    top: 0;
+    left: 0;
+  `
   return (
-    <>
+    <Style>
       <ResetStyle />
       <CommonStyle />
       <Header>
-        
+        <Logo />
+        <HistoryButton {...{ toggleActiveUserLog }} />
       </Header>
-    </>
+      <Container>
+        <Main />
+        <Aside />
+      </Container>
+      <Modal message={message} action={dummyAction}/>
+    </Style>
   );
 }
+
+const Container = styled.div`
+  display: flex;
+`;
 
 const ResetStyle = createGlobalStyle`
   /* http://meyerweb.com/eric/tools/css/reset/ 
