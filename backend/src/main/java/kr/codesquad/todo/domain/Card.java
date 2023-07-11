@@ -10,7 +10,7 @@ public class Card {
 	private LocalDateTime createdAt;
 	private LocalDateTime modifiedAt;
 	private Long categoryId;
-	private Long childCardId;
+	private Long prevCardId;
 
 	public Long getId() {
 		return id;
@@ -36,7 +36,7 @@ public class Card {
 		return categoryId;
 	}
 
-	public Long getChildCardId() {
-		return childCardId;
+	public Long getPrevCardId() {
+		return prevCardId;
 	}
 }
