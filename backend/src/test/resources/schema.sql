@@ -41,6 +41,7 @@ CREATE TABLE action
     card_name            VARCHAR(64) NOT NULL,
     origin_category_name VARCHAR(64) NOT NULL,
     target_category_name VARCHAR(64) NOT NULL,
+    created_at           TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP(0),
     user_id              BIGINT      NOT NULL,
     PRIMARY KEY (`id`)
 );
