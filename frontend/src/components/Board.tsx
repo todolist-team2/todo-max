@@ -13,22 +13,23 @@ const dummy = [
   },
 ];
 
-export default function Main() {
-  return (
-    <main>
-      <h2 className="blind">메인</h2>
-      <ul>
-        {dummy.map((category, index) => (
-          <li key={index}>
-            <Column category={category} />
-          </li>
-        ))}
-      </ul>
-    </main>
-  );
+function Board() {
+  return <ul>
+    {dummy.map((category, index) => (
+      <li key={index}>
+        <Column category={category} />
+      </li>
+    ))}
+  </ul>;
 }
 
-function Column({ category: { name, data } }: { category: { name: string; data: string[] } }) {
+export default Board;
+
+function Column({
+  category: { name, data },
+}: {
+  category: { name: string; data: string[] };
+}) {
   return (
     <article>
       <h3>{name}</h3>
