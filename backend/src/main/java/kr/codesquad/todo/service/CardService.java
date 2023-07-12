@@ -1,12 +1,13 @@
 package kr.codesquad.todo.service;
 
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import kr.codesquad.todo.dto.request.CardCreationRequest;
 import kr.codesquad.todo.exeption.BusinessException;
 import kr.codesquad.todo.exeption.ErrorCode;
 import kr.codesquad.todo.repository.CardRepository;
 import kr.codesquad.todo.repository.CategoryRepository;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class CardService {
@@ -30,5 +31,16 @@ public class CardService {
 			cardRepository.updateById(headId, id);
 		}
 		return id;
+	}
+
+	@Transactional
+	public void delete(Long cardId) {
+		Long prevId = cardRepository.findPrevIdById(cardId)
+			.orElseThrow(() -> new BusinessException(ErrorCode.CARD_NOT_FOUND));
+		Long nextId = cardRepository.findIdByPrevId(cardId).orElse(-1L);
+		cardRepository.deleteById(cardId);
+		if (nextId != -1L) {
+			cardRepository.updateById(nextId, prevId);
+		}
 	}
 }
