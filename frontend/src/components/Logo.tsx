@@ -1,14 +1,14 @@
 import styled from "styled-components"; 
 
-const Style = styled.a`
+const LogoStyledA = styled.a`
   font-size: 24px;
   text-decoration: none;
   color: black;
 `
 
 export default function Logo() {
-  return <Style href="/">
+  return <LogoStyledA href="/">
     TODO LIST
-  </Style>
+  </LogoStyledA>
 }
 

@@ -43,7 +43,7 @@ export default function App() {
     setIsUserLogOpened((bool) => !bool);
   }
 
-  const Style = styled.div`
+  const AppStyledDiv = styled.div`
     position: relative;
     width: 100vw;
     height: 100vh;
@@ -52,7 +52,7 @@ export default function App() {
   `;
 
   return (
-    <Style>
+    <AppStyledDiv>
       <CommonStyle />
       <ThemeProvider theme={theme}>
         <Header>
@@ -69,6 +69,6 @@ export default function App() {
         </Container>
         <Modal message={message} action={dummyAction} />
       </ThemeProvider>
-    </Style>
+    </AppStyledDiv>
   );
 }
