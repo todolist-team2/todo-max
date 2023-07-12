@@ -50,7 +50,6 @@ export default function App() {
     top: 0;
     left: 0;
   `;
-
   return (
     <AppStyledDiv>
       <CommonStyle />
