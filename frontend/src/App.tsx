@@ -6,17 +6,18 @@ import HistoryButton from "./components/HistoryButton";
 import Logo from "./components/Logo";
 import Main from "./components/Main";
 import Modal from "./components/Modal";
+import { Font } from "./styles/Font";
 
 export default function App() {
   const [isUserLogOpened, setIsUserLogOpened] = useState<boolean>(false);
-  const [message, setMessage] = useState<string>("test");
+  const [message, setMessage] = useState<string>("");
 
   function clearMessage() {
     setMessage("");
   }
 
   function dummyAction() {
-    clearMessage()
+    clearMessage();
   }
 
   function toggleActiveUserLog() {
@@ -29,7 +30,7 @@ export default function App() {
     height: 100vh;
     top: 0;
     left: 0;
-  `
+  `;
   return (
     <Style>
       <ResetStyle />
@@ -38,11 +39,14 @@ export default function App() {
         <Logo />
         <HistoryButton {...{ toggleActiveUserLog }} />
       </Header>
+      <Font $type="bold" $size="L">
+        테스트용 스팬
+      </Font>
       <Container>
         <Main />
         <Aside />
       </Container>
-      <Modal message={message} action={dummyAction}/>
+      <Modal message={message} action={dummyAction} />
     </Style>
   );
 }
@@ -110,5 +114,59 @@ const CommonStyle = createGlobalStyle`
     position: absolute;
     overflow: hidden;
     clip-path: polygon(0 0, 0 0, 0 0, 0 0);
+  }
+  
+  @font-face {
+  font-family: "pretendard";
+  font-weight: 900;
+  src: url("fonts/Pretendard-Black.woff2") format("woff2");
+  }
+
+  @font-face {
+    font-family: "pretendard";
+    font-weight: 800;
+    src: url("fonts/Pretendard-ExtraBold.woff2") format("woff2");
+  }
+
+  @font-face {
+    font-family: "pretendard";
+    font-weight: 700;
+    src: url("fonts/Pretendard-Black.woff2") format("woff2");
+  }
+
+  @font-face {
+    font-family: "pretendard";
+    font-weight: 600;
+    src: url("fonts/Pretendard-SemiBold.woff2") format("woff2");
+  }
+
+  @font-face {
+    font-family: "pretendard";
+    font-weight: 500;
+    src: url("fonts/Pretendard-Medium.woff2") format("woff2");
+  }
+
+  @font-face {
+    font-family: "pretendard";
+    font-weight: 400;
+    src: url("fonts/Pretendard-Regular.woff2") format("woff2");
+  }
+
+  @font-face {
+    font-family: "pretendard";
+    font-weight: 300;
+    src: url("fonts/Pretendard-Thin.woff2") format("woff2");
+  }
+
+  @font-face {
+    font-family: "pretendard";
+    font-weight: 200;
+    src: url("fonts/Pretendard-Light.woff2") format("woff2");
+  }
+
+  @font-face {
+    font-family: "pretendard";
+    font-weight: 100;
+    src: url("fonts/Pretendard-ExtraLight.woff2") format("woff2");
   }
 `;
