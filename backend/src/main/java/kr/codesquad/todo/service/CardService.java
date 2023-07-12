@@ -1,12 +1,12 @@
 package kr.codesquad.todo.service;
 
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import kr.codesquad.todo.dto.request.CardCreationRequest;
 import kr.codesquad.todo.exeption.BusinessException;
+import kr.codesquad.todo.exeption.ErrorCode;
 import kr.codesquad.todo.repository.CardRepository;
 import kr.codesquad.todo.repository.CategoryRepository;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class CardService {
@@ -22,7 +22,7 @@ public class CardService {
 	@Transactional
 	public Long register(Long categoryId, CardCreationRequest cardCreationRequest) {
 		if (!categoryRepository.existById(categoryId)) {
-			throw new BusinessException("categoryId가 존재하지 않습니다.");
+			throw new BusinessException(ErrorCode.CATEGORY_NOT_FOUND);
 		}
 		Long headId = cardRepository.findHeadIdByCategoryId(categoryId).orElse(0L);
 		Long id = cardRepository.save(cardCreationRequest.toEntity(categoryId));
