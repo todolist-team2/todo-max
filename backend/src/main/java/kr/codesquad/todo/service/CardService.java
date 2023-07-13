@@ -51,6 +51,9 @@ public class CardService {
 	public void move(Long cardId, CardMoveRequest cardMoveRequest) {
 		Long categoryId = cardRepository.findCategoryIdById(cardId)
 			.orElseThrow(() -> new BusinessException(ErrorCode.CARD_NOT_FOUND));
+		if (cardMoveRequest.isSamePosition(categoryId)) {
+			return;
+		}
 		cardRepository.findIdByPrevId(cardId, categoryId)
 			.ifPresent(
 				originNextCardId -> cardRepository.updateById(originNextCardId, cardMoveRequest.getFromPrevCardId()));

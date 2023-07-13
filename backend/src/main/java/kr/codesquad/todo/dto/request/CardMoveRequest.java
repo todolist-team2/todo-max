@@ -1,5 +1,7 @@
 package kr.codesquad.todo.dto.request;
 
+import java.util.Objects;
+
 public class CardMoveRequest {
 
 	private Long fromPrevCardId;
@@ -25,5 +27,9 @@ public class CardMoveRequest {
 
 	public Long getToPrevCardId() {
 		return toPrevCardId;
+	}
+
+	public boolean isSamePosition(Long fromCategoryId) {
+		return Objects.equals(fromCategoryId, toCategoryId) && Objects.equals(fromPrevCardId, toPrevCardId);
 	}
 }
