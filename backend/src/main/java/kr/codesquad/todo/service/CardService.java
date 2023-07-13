@@ -1,9 +1,13 @@
 package kr.codesquad.todo.service;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import kr.codesquad.todo.dto.request.CardCreationRequest;
+import kr.codesquad.todo.dto.response.CardData;
+import kr.codesquad.todo.dto.response.CardsResponse;
 import kr.codesquad.todo.exeption.BusinessException;
 import kr.codesquad.todo.exeption.ErrorCode;
 import kr.codesquad.todo.repository.CardRepository;
@@ -42,5 +46,11 @@ public class CardService {
 		if (nextId != -1L) {
 			cardRepository.updateById(nextId, prevId);
 		}
+	}
+
+	@Transactional(readOnly = true)
+	public List<CardsResponse> retrieveAll() {
+		List<CardData> cardData = cardRepository.findAll();
+		return CardsResponse.from(cardData);
 	}
 }
