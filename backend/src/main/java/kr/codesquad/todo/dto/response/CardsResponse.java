@@ -6,6 +6,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import kr.codesquad.todo.exeption.BusinessException;
+import kr.codesquad.todo.exeption.ErrorCode;
+
 public class CardsResponse {
 
 	private final Long categoryId;
@@ -18,12 +21,21 @@ public class CardsResponse {
 		this.cards = cards;
 	}
 
-	public static List<CardsResponse> from(List<CardData> cardData) {
+	public static List<CardsResponse> listFrom(List<CardData> cardData) {
 		Map<CategoryResponse, List<CardData>> groupingCardData = cardData.stream()
 			.collect(Collectors.groupingBy(CardData::getCategoryResponse));
 		return groupingCardData.entrySet().stream()
 			.map(CardsResponse::from)
 			.collect(Collectors.toList());
+	}
+
+	public static CardsResponse singleFrom(List<CardData> cardData) {
+		Map<CategoryResponse, List<CardData>> card = cardData.stream()
+			.collect(Collectors.groupingBy(CardData::getCategoryResponse));
+		return card.entrySet().stream()
+			.map(CardsResponse::from)
+			.findFirst()
+			.orElseThrow(() -> new BusinessException(ErrorCode.CATEGORY_NOT_FOUND));
 	}
 
 	private static CardsResponse from(Map.Entry<CategoryResponse, List<CardData>> entry) {

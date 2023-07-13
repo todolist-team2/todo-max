@@ -48,4 +48,10 @@ public class CardController {
 		return ResponseEntity.status(HttpStatus.OK)
 			.body(cardService.retrieveAll());
 	}
+
+	@GetMapping(params = "categoryId")
+	public ResponseEntity<CardsResponse> retrieveOne(@RequestParam Long categoryId) {
+		return ResponseEntity.status(HttpStatus.OK)
+			.body(cardService.retrieveOne(categoryId));
+	}
 }
