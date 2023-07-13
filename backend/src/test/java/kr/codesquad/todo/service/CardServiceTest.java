@@ -7,6 +7,7 @@ import kr.codesquad.todo.fixture.FixtureFactory;
 import kr.codesquad.todo.repository.CardRepository;
 import kr.codesquad.todo.repository.CategoryRepository;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -88,5 +89,73 @@ class CardServiceTest {
 				() -> then(cardRepository).should(times(1)).save(any(Card.class)),
 				() -> then(cardRepository).should(never()).updateById(anyLong(), anyLong())
 		);
+	}
+
+	@DisplayName("카드 이동 테스트")
+	@Nested
+	class MoveTest {
+
+		@DisplayName("카드 id와 카드 이동 정보가 주어지면 카드 이동에 성공한다.")
+		@Test
+		void moveTest() {
+			// given
+			given(cardRepository.findCategoryIdById(anyLong())).willReturn(Optional.of(1L));
+			given(cardRepository.findIdByPrevId(1L, 1L)).willReturn(Optional.of(2L));
+			given(cardRepository.findIdByPrevId(5L, 2L)).willReturn(Optional.of(6L));
+			willDoNothing().given(cardRepository).updateCategoryIdAndPrevCardIdById(anyLong(), anyLong(), anyLong());
+
+			// when
+			cardService.move(1L, FixtureFactory.createCardMoveRequest(1L, 2L, 5L));
+
+			// then
+			assertAll(
+					() -> then(cardRepository).should(times(1)).findCategoryIdById(anyLong()),
+					() -> then(cardRepository).should(times(2)).findIdByPrevId(anyLong(), anyLong()),
+					() -> then(cardRepository).should(times(2)).updateById(anyLong(), anyLong()),
+					() -> then(cardRepository).should(times(1)).updateCategoryIdAndPrevCardIdById(anyLong(), anyLong(), anyLong())
+			);
+		}
+
+		@DisplayName("카테고리의 마지막 카드를 옮기면 이동에 성공한다.")
+		@Test
+		void givenLastCardInCategory_thenSuccess() {
+			// given
+			given(cardRepository.findCategoryIdById(anyLong())).willReturn(Optional.of(1L));
+			given(cardRepository.findIdByPrevId(1L, 1L)).willReturn(Optional.empty());
+			given(cardRepository.findIdByPrevId(4L, 2L)).willReturn(Optional.of(6L));
+			willDoNothing().given(cardRepository).updateCategoryIdAndPrevCardIdById(anyLong(), anyLong(), anyLong());
+
+			// when
+			cardService.move(1L, FixtureFactory.createCardMoveRequest(1L, 2L, 4L));
+
+			// then
+			assertAll(
+					() -> then(cardRepository).should(times(1)).findCategoryIdById(anyLong()),
+					() -> then(cardRepository).should(times(2)).findIdByPrevId(anyLong(), anyLong()),
+					() -> then(cardRepository).should(times(1)).updateById(anyLong(), anyLong()),
+					() -> then(cardRepository).should(times(1)).updateCategoryIdAndPrevCardIdById(anyLong(), anyLong(), anyLong())
+			);
+		}
+
+		@DisplayName("가고자 하는 카테고리에 아무것도 없어도 이동에 성공한다.")
+		@Test
+		void givenNothingExistsToCategoryId_thenSuccess() {
+			// given
+			given(cardRepository.findCategoryIdById(anyLong())).willReturn(Optional.of(1L));
+			given(cardRepository.findIdByPrevId(1L, 1L)).willReturn(Optional.of(2L));
+			given(cardRepository.findIdByPrevId(4L, 2L)).willReturn(Optional.empty());
+			willDoNothing().given(cardRepository).updateCategoryIdAndPrevCardIdById(anyLong(), anyLong(), anyLong());
+
+			// when
+			cardService.move(1L, FixtureFactory.createCardMoveRequest(1L, 2L, 4L));
+
+			// then
+			assertAll(
+					() -> then(cardRepository).should(times(1)).findCategoryIdById(anyLong()),
+					() -> then(cardRepository).should(times(2)).findIdByPrevId(anyLong(), anyLong()),
+					() -> then(cardRepository).should(times(1)).updateById(anyLong(), anyLong()),
+					() -> then(cardRepository).should(times(1)).updateCategoryIdAndPrevCardIdById(anyLong(), anyLong(), anyLong())
+			);
+		}
 	}
 }
