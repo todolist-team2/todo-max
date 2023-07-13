@@ -34,63 +34,68 @@ class CardServiceTest {
 	@InjectMocks
 	private CardService cardService;
 
-	@DisplayName("카테고리 아이디와 카드 등록 정보가 주어지면 카드 등록에 성공한다.")
-	@Test
-	void registerTest() {
-		// given
-		given(categoryRepository.existById(anyLong())).willReturn(Boolean.TRUE);
-		given(cardRepository.findHeadIdByCategoryId(anyLong())).willReturn(Optional.of(1L));
-		given(cardRepository.save(any(Card.class))).willReturn(2L);
-		willDoNothing().given(cardRepository).updateById(anyLong(), anyLong());
+	@DisplayName("카드 등록 테스트")
+	@Nested
+	class RegisterTest {
 
-		// when
-		cardService.register(1L, FixtureFactory.createCardCreationRequest());
+		@DisplayName("카테고리 아이디와 카드 등록 정보가 주어지면 카드 등록에 성공한다.")
+		@Test
+		void registerTest() {
+			// given
+			given(categoryRepository.existById(anyLong())).willReturn(Boolean.TRUE);
+			given(cardRepository.findHeadIdByCategoryId(anyLong())).willReturn(Optional.of(1L));
+			given(cardRepository.save(any(Card.class))).willReturn(2L);
+			willDoNothing().given(cardRepository).updateById(anyLong(), anyLong());
 
-		// then
-		assertAll(
-			() -> then(categoryRepository).should(times(1)).existById(anyLong()),
-			() -> then(cardRepository).should(times(1)).findHeadIdByCategoryId(anyLong()),
-			() -> then(cardRepository).should(times(1)).save(any(Card.class)),
-			() -> then(cardRepository).should(times(1)).updateById(anyLong(), anyLong())
-		);
-	}
+			// when
+			cardService.register(1L, FixtureFactory.createCardCreationRequest());
 
-	@DisplayName("올바르지 않은 카테고리 아이디가 주어지면 예외를 던진다.")
-	@Test
-	void givenInvalidCategoryId_thenThrowsException() {
-		// given
-		given(categoryRepository.existById(anyLong())).willReturn(Boolean.FALSE);
+			// then
+			assertAll(
+				() -> then(categoryRepository).should(times(1)).existById(anyLong()),
+				() -> then(cardRepository).should(times(1)).findHeadIdByCategoryId(anyLong()),
+				() -> then(cardRepository).should(times(1)).save(any(Card.class)),
+				() -> then(cardRepository).should(times(1)).updateById(anyLong(), anyLong())
+			);
+		}
 
-		// when & then
-		assertAll(
-			() -> assertThatThrownBy(() -> cardService.register(100L, FixtureFactory.createCardCreationRequest()))
-				.isInstanceOf(BusinessException.class)
-				.extracting("errorCode").isEqualTo(ErrorCode.CATEGORY_NOT_FOUND),
-			() -> then(categoryRepository).should(times(1)).existById(anyLong()),
-			() -> then(cardRepository).should(never()).findHeadIdByCategoryId(anyLong()),
-			() -> then(cardRepository).should(never()).save(any(Card.class)),
-			() -> then(cardRepository).should(never()).updateById(anyLong(), anyLong())
-		);
-	}
+		@DisplayName("올바르지 않은 카테고리 아이디가 주어지면 예외를 던진다.")
+		@Test
+		void givenInvalidCategoryId_thenThrowsException() {
+			// given
+			given(categoryRepository.existById(anyLong())).willReturn(Boolean.FALSE);
 
-	@DisplayName("headId가 empty 라면 update 되지 않는다.")
-	@Test
-	void givenEmptyHeadId_thenDoNotUpdate() {
-		// given
-		given(categoryRepository.existById(anyLong())).willReturn(Boolean.TRUE);
-		given(cardRepository.findHeadIdByCategoryId(anyLong())).willReturn(Optional.empty());
-		given(cardRepository.save(any(Card.class))).willReturn(2L);
+			// when & then
+			assertAll(
+				() -> assertThatThrownBy(() -> cardService.register(100L, FixtureFactory.createCardCreationRequest()))
+					.isInstanceOf(BusinessException.class)
+					.extracting("errorCode").isEqualTo(ErrorCode.CATEGORY_NOT_FOUND),
+				() -> then(categoryRepository).should(times(1)).existById(anyLong()),
+				() -> then(cardRepository).should(never()).findHeadIdByCategoryId(anyLong()),
+				() -> then(cardRepository).should(never()).save(any(Card.class)),
+				() -> then(cardRepository).should(never()).updateById(anyLong(), anyLong())
+			);
+		}
 
-		// when
-		cardService.register(1L, FixtureFactory.createCardCreationRequest());
+		@DisplayName("headId가 empty 라면 update 되지 않는다.")
+		@Test
+		void givenEmptyHeadId_thenDoNotUpdate() {
+			// given
+			given(categoryRepository.existById(anyLong())).willReturn(Boolean.TRUE);
+			given(cardRepository.findHeadIdByCategoryId(anyLong())).willReturn(Optional.empty());
+			given(cardRepository.save(any(Card.class))).willReturn(2L);
 
-		// then
-		assertAll(
-			() -> then(categoryRepository).should(times(1)).existById(anyLong()),
-			() -> then(cardRepository).should(times(1)).findHeadIdByCategoryId(anyLong()),
-			() -> then(cardRepository).should(times(1)).save(any(Card.class)),
-			() -> then(cardRepository).should(never()).updateById(anyLong(), anyLong())
-		);
+			// when
+			cardService.register(1L, FixtureFactory.createCardCreationRequest());
+
+			// then
+			assertAll(
+				() -> then(categoryRepository).should(times(1)).existById(anyLong()),
+				() -> then(cardRepository).should(times(1)).findHeadIdByCategoryId(anyLong()),
+				() -> then(cardRepository).should(times(1)).save(any(Card.class)),
+				() -> then(cardRepository).should(never()).updateById(anyLong(), anyLong())
+			);
+		}
 	}
 
 	@DisplayName("카드 이동 테스트")
