@@ -1,11 +1,13 @@
 package kr.codesquad.todo.service;
 
-import kr.codesquad.todo.domain.Card;
-import kr.codesquad.todo.exeption.BusinessException;
-import kr.codesquad.todo.exeption.ErrorCode;
-import kr.codesquad.todo.fixture.FixtureFactory;
-import kr.codesquad.todo.repository.CardRepository;
-import kr.codesquad.todo.repository.CategoryRepository;
+import static org.assertj.core.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.BDDMockito.anyLong;
+import static org.mockito.BDDMockito.*;
+
+import java.util.Optional;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -14,12 +16,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.*;
+import kr.codesquad.todo.domain.Card;
+import kr.codesquad.todo.exeption.BusinessException;
+import kr.codesquad.todo.exeption.ErrorCode;
+import kr.codesquad.todo.fixture.FixtureFactory;
+import kr.codesquad.todo.repository.CardRepository;
+import kr.codesquad.todo.repository.CategoryRepository;
 
 @ExtendWith(MockitoExtension.class)
 class CardServiceTest {
@@ -46,10 +48,10 @@ class CardServiceTest {
 
 		// then
 		assertAll(
-				() -> then(categoryRepository).should(times(1)).existById(anyLong()),
-				() -> then(cardRepository).should(times(1)).findHeadIdByCategoryId(anyLong()),
-				() -> then(cardRepository).should(times(1)).save(any(Card.class)),
-				() -> then(cardRepository).should(times(1)).updateById(anyLong(), anyLong())
+			() -> then(categoryRepository).should(times(1)).existById(anyLong()),
+			() -> then(cardRepository).should(times(1)).findHeadIdByCategoryId(anyLong()),
+			() -> then(cardRepository).should(times(1)).save(any(Card.class)),
+			() -> then(cardRepository).should(times(1)).updateById(anyLong(), anyLong())
 		);
 	}
 
@@ -61,13 +63,13 @@ class CardServiceTest {
 
 		// when & then
 		assertAll(
-				() -> assertThatThrownBy(() -> cardService.register(100L, FixtureFactory.createCardCreationRequest()))
-						.isInstanceOf(BusinessException.class)
-						.extracting("errorCode").isEqualTo(ErrorCode.CATEGORY_NOT_FOUND),
-				() -> then(categoryRepository).should(times(1)).existById(anyLong()),
-				() -> then(cardRepository).should(never()).findHeadIdByCategoryId(anyLong()),
-				() -> then(cardRepository).should(never()).save(any(Card.class)),
-				() -> then(cardRepository).should(never()).updateById(anyLong(), anyLong())
+			() -> assertThatThrownBy(() -> cardService.register(100L, FixtureFactory.createCardCreationRequest()))
+				.isInstanceOf(BusinessException.class)
+				.extracting("errorCode").isEqualTo(ErrorCode.CATEGORY_NOT_FOUND),
+			() -> then(categoryRepository).should(times(1)).existById(anyLong()),
+			() -> then(cardRepository).should(never()).findHeadIdByCategoryId(anyLong()),
+			() -> then(cardRepository).should(never()).save(any(Card.class)),
+			() -> then(cardRepository).should(never()).updateById(anyLong(), anyLong())
 		);
 	}
 
@@ -84,10 +86,10 @@ class CardServiceTest {
 
 		// then
 		assertAll(
-				() -> then(categoryRepository).should(times(1)).existById(anyLong()),
-				() -> then(cardRepository).should(times(1)).findHeadIdByCategoryId(anyLong()),
-				() -> then(cardRepository).should(times(1)).save(any(Card.class)),
-				() -> then(cardRepository).should(never()).updateById(anyLong(), anyLong())
+			() -> then(categoryRepository).should(times(1)).existById(anyLong()),
+			() -> then(cardRepository).should(times(1)).findHeadIdByCategoryId(anyLong()),
+			() -> then(cardRepository).should(times(1)).save(any(Card.class)),
+			() -> then(cardRepository).should(never()).updateById(anyLong(), anyLong())
 		);
 	}
 
@@ -109,10 +111,30 @@ class CardServiceTest {
 
 			// then
 			assertAll(
-					() -> then(cardRepository).should(times(1)).findCategoryIdById(anyLong()),
-					() -> then(cardRepository).should(times(2)).findIdByPrevId(anyLong(), anyLong()),
-					() -> then(cardRepository).should(times(2)).updateById(anyLong(), anyLong()),
-					() -> then(cardRepository).should(times(1)).updateCategoryIdAndPrevCardIdById(anyLong(), anyLong(), anyLong())
+				() -> then(cardRepository).should(times(1)).findCategoryIdById(anyLong()),
+				() -> then(cardRepository).should(times(2)).findIdByPrevId(anyLong(), anyLong()),
+				() -> then(cardRepository).should(times(2)).updateById(anyLong(), anyLong()),
+				() -> then(cardRepository).should(times(1))
+					.updateCategoryIdAndPrevCardIdById(anyLong(), anyLong(), anyLong())
+			);
+		}
+
+		@DisplayName("같은 위치로 카드를 옮길 때 성공한다.")
+		@Test
+		void givenSamePositionRequest_thenSuccess() {
+			// given
+			given(cardRepository.findCategoryIdById(anyLong())).willReturn(Optional.of(1L));
+
+			// when
+			cardService.move(1L, FixtureFactory.createCardMoveRequest(0L, 1L, 0L));
+
+			// then
+			assertAll(
+				() -> then(cardRepository).should(times(1)).findCategoryIdById(anyLong()),
+				() -> then(cardRepository).should(never()).findIdByPrevId(anyLong(), anyLong()),
+				() -> then(cardRepository).should(never()).updateById(anyLong(), anyLong()),
+				() -> then(cardRepository).should(never())
+					.updateCategoryIdAndPrevCardIdById(anyLong(), anyLong(), anyLong())
 			);
 		}
 
@@ -130,10 +152,11 @@ class CardServiceTest {
 
 			// then
 			assertAll(
-					() -> then(cardRepository).should(times(1)).findCategoryIdById(anyLong()),
-					() -> then(cardRepository).should(times(2)).findIdByPrevId(anyLong(), anyLong()),
-					() -> then(cardRepository).should(times(1)).updateById(anyLong(), anyLong()),
-					() -> then(cardRepository).should(times(1)).updateCategoryIdAndPrevCardIdById(anyLong(), anyLong(), anyLong())
+				() -> then(cardRepository).should(times(1)).findCategoryIdById(anyLong()),
+				() -> then(cardRepository).should(times(2)).findIdByPrevId(anyLong(), anyLong()),
+				() -> then(cardRepository).should(times(1)).updateById(anyLong(), anyLong()),
+				() -> then(cardRepository).should(times(1))
+					.updateCategoryIdAndPrevCardIdById(anyLong(), anyLong(), anyLong())
 			);
 		}
 
@@ -151,10 +174,11 @@ class CardServiceTest {
 
 			// then
 			assertAll(
-					() -> then(cardRepository).should(times(1)).findCategoryIdById(anyLong()),
-					() -> then(cardRepository).should(times(2)).findIdByPrevId(anyLong(), anyLong()),
-					() -> then(cardRepository).should(times(1)).updateById(anyLong(), anyLong()),
-					() -> then(cardRepository).should(times(1)).updateCategoryIdAndPrevCardIdById(anyLong(), anyLong(), anyLong())
+				() -> then(cardRepository).should(times(1)).findCategoryIdById(anyLong()),
+				() -> then(cardRepository).should(times(2)).findIdByPrevId(anyLong(), anyLong()),
+				() -> then(cardRepository).should(times(1)).updateById(anyLong(), anyLong()),
+				() -> then(cardRepository).should(times(1))
+					.updateCategoryIdAndPrevCardIdById(anyLong(), anyLong(), anyLong())
 			);
 		}
 	}
