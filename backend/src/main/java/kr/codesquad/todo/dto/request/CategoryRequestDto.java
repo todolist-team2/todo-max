@@ -8,6 +8,9 @@ public class CategoryRequestDto {
 	@NotBlank(message = "카테고리 이름을 입력해주세요.")
 	private String name;
 
+	public CategoryRequestDto(String name) {
+		this.name = name;
+	}
 
 	public String getName() {
 		return name;
