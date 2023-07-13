@@ -1,5 +1,6 @@
 package kr.codesquad.todo.fixture;
 
+import kr.codesquad.todo.domain.Category;
 import kr.codesquad.todo.dto.request.CardCreationRequest;
 import kr.codesquad.todo.dto.request.CategoryRequestDto;
 
