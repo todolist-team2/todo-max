@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import kr.codesquad.todo.dto.request.CardCreationRequest;
+import kr.codesquad.todo.dto.response.CardData;
 import kr.codesquad.todo.exeption.BusinessException;
 import kr.codesquad.todo.exeption.ErrorCode;
 import kr.codesquad.todo.repository.CardRepository;
@@ -43,4 +44,15 @@ public class CardService {
 			cardRepository.updateById(nextId, prevId);
 		}
 	}
+
+	@Transactional
+	public void update(Long cardId, CardCreationRequest cardCreationRequest) {
+		cardRepository.update(cardId, cardCreationRequest.getTitle(), cardCreationRequest.getContent());
+	}
+
+	@Transactional(readOnly = true)
+	public CardData getById(Long cardId) {
+		return cardRepository.findById(cardId).orElseThrow(() -> new BusinessException(ErrorCode.CARD_NOT_FOUND));
+	}
+
 }
