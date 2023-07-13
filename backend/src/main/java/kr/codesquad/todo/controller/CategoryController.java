@@ -31,4 +31,13 @@ public class CategoryController {
 	public ResponseEntity<?> updateCategory(@PathVariable Long categoryId, @RequestBody CategoryRequestDto categoryRequestDto) {
 		return ResponseEntity.ok(categoryService.modifyCategory(categoryId, categoryRequestDto));
 	}
+
+
+	// 카테고리 삭제
+	@DeleteMapping("/category/{categoryId}")
+	public ResponseEntity<?> deleteCategory(@PathVariable Long categoryId) {
+		categoryService.removeCategory(categoryId);
+		return ResponseEntity.noContent().build();
+	}
+
 }

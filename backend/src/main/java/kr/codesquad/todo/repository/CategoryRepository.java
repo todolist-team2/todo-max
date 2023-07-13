@@ -65,4 +65,27 @@ public class CategoryRepository {
 		}
 		return categoryId;
 	}
+
+
+	// 카테고리 삭제
+	public void delete(Long categoryId) {
+		Connection connection = null;
+		PreparedStatement statement = null;
+		try {
+			String sql = "DELETE FROM category WHERE id = ?";
+			connection = dataSource.getConnection();
+			statement = connection.prepareStatement(sql);
+			statement.setLong(1, categoryId);
+			statement.executeUpdate();
+		} catch (SQLException e) {
+			throw new RuntimeException(e.getSQLState());
+		} finally {
+			try {
+				statement.close();
+				connection.close();
+			} catch (SQLException e) {
+				throw new RuntimeException(e.getMessage());
+			}
+		}
+	}
 }
