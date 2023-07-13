@@ -7,12 +7,14 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
+import java.util.Map;
 
 @Repository
 public class CategoryRepository {
 
 	private final NamedParameterJdbcTemplate jdbcTemplate;
 	private final SimpleJdbcInsert simpleJdbcInsert;
+
 
 	public CategoryRepository(NamedParameterJdbcTemplate jdbcTemplate, DataSource dataSource) {
 		this.jdbcTemplate = jdbcTemplate;
@@ -21,6 +23,13 @@ public class CategoryRepository {
 				.usingColumns("name", "user_account_id")
 				.usingGeneratedKeyColumns("id");
 	}
+
+
+	public Boolean existById(Long categoryId) {
+		String existById = "SELECT EXISTS (SELECT id FROM category WHERE id = :id)";
+		return jdbcTemplate.queryForObject(existById, Map.of("id", categoryId), Boolean.class);
+	}
+
 
 	public Long save(Category category) {
 		return simpleJdbcInsert.executeAndReturnKey(new BeanPropertySqlParameterSource(category)).longValue();
