@@ -18,19 +18,19 @@ export const theme: TTheme = {
     display: {
       bold24: `700 1.7143rem ${fontFamily}`,
       bold16: `700 1.143rem ${fontFamily}`,
-      bold14: `700 1rem700 1rem ${fontFamily}`,
+      bold14: `700 1rem ${fontFamily}`,
       bold12: `700 0.86rem ${fontFamily}`,
       medium16: `500 1.143rem ${fontFamily}`,
-      medium14: `500 1rem700 1rem ${fontFamily}`,
+      medium14: `500 1rem ${fontFamily}`,
       medium12: `500 0.86rem ${fontFamily}`,
     },
     selected: {
       bold16: `700 1.143rem ${fontFamily}`,
-      bold14: `700 1rem700 1rem ${fontFamily}`,
+      bold14: `700 1rem ${fontFamily}`,
     },
     available: {
       medium16: `500 1.143rem ${fontFamily}`,
-      medium14: `500 1rem700 1rem ${fontFamily}`,
+      medium14: `500 1.143rem ${fontFamily}`,
     },
   },
   color: {

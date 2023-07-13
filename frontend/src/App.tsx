@@ -1,6 +1,5 @@
 import { useState } from "react";
 import styled, { ThemeProvider } from "styled-components";
-import HistoryButton from "./components/HistoryButton";
 import Logo from "./components/Logo";
 import Modal from "./components/Modal";
 import Board from "./components/Board";
@@ -10,6 +9,8 @@ import Header from "./components/landmark/Header";
 import Main from "./components/landmark/Main";
 import Aside from "./components/landmark/landmark";
 import { theme } from "./theme";
+import HistoryBtn from "./components/HistoryBtn";
+import { TTheme } from "./types/theme";
 
 export default function App() {
   const [isUserLogOpened, setIsUserLogOpened] = useState<boolean>(false);
@@ -28,36 +29,37 @@ export default function App() {
   }
 
   return (
-    <AppStyledDiv>
-      <CommonStyle />
-      <ThemeProvider theme={theme}>
+    <ThemeProvider theme={theme}>
+      <AppStyledDiv>
+        <CommonStyle />
         <Header>
           <Logo />
-          <HistoryButton {...{ toggleActiveUserLog }} />
+          <HistoryBtn {...{ toggleActiveUserLog }} />
         </Header>
         <Container>
           <Main>
             <Board />
           </Main>
-          <Aside>
+          {/* <Aside>
             <UserActionLogList />
-          </Aside>
+          </Aside> */}
         </Container>
         <Modal message={message} action={dummyAction} />
-      </ThemeProvider>
-    </AppStyledDiv>
+      </AppStyledDiv>{" "}
+    </ThemeProvider>
   );
 }
 
-const AppStyledDiv = styled.div`
+const AppStyledDiv = styled.div<{ theme: TTheme }>`
   position: relative;
   width: 100vw;
   height: 100vh;
   top: 0;
   left: 0;
+  background-color: ${(props) => props.theme.color.surface.alt};
 `;
 
 const Container = styled.div`
   display: flex;
+  padding: calc(2.29rem - 4px) calc(5.8rem - 4px);
 `;
-

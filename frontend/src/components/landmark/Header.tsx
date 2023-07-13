@@ -16,5 +16,4 @@ const Style = styled.header`
   align-items: center;
   padding: 1.2rem 5.8rem;
   margin: auto;
-  border: 1px solid black;
 `

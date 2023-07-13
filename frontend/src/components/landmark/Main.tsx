@@ -1,10 +1,15 @@
 import { ReactNode } from "react";
+import { styled } from "styled-components";
 
 export default function Main({ children }: { children: ReactNode }) {
   return (
-    <main>
+    <MainStyledMain>
       <h2 className="blind">메인</h2>
       {children}
-    </main>
+    </MainStyledMain>
   );
 }
+
+const MainStyledMain = styled.main`
+  overflow: hidden;
+`;
