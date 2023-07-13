@@ -24,4 +24,11 @@ public class CategoryController {
 	public ResponseEntity<?> createCategory(@RequestBody CategoryRequestDto categoryRequestDto) {
 		return ResponseEntity.status(HttpStatus.CREATED).body(categoryService.saveCategory(categoryRequestDto));
 	}
+
+
+	// 카테고리 수정
+	@PutMapping("/category/{categoryId}")
+	public ResponseEntity<?> updateCategory(@PathVariable Long categoryId, @RequestBody CategoryRequestDto categoryRequestDto) {
+		return ResponseEntity.ok(categoryService.modifyCategory(categoryId, categoryRequestDto));
+	}
 }

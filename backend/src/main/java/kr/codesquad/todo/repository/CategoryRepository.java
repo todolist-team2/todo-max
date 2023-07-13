@@ -8,12 +8,16 @@ import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
 import java.util.Map;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 
 @Repository
 public class CategoryRepository {
 
 	private final NamedParameterJdbcTemplate jdbcTemplate;
 	private final SimpleJdbcInsert simpleJdbcInsert;
+	private final DataSource dataSource;
 
 
 	public CategoryRepository(NamedParameterJdbcTemplate jdbcTemplate, DataSource dataSource) {
@@ -22,6 +26,7 @@ public class CategoryRepository {
 				.withTableName("category")
 				.usingColumns("name", "user_account_id")
 				.usingGeneratedKeyColumns("id");
+		this.dataSource = dataSource;
 	}
 
 
@@ -34,5 +39,30 @@ public class CategoryRepository {
 	// 카테고리 추가
 	public Long save(Category category) {
 		return simpleJdbcInsert.executeAndReturnKey(new BeanPropertySqlParameterSource(category)).longValue();
+	}
+
+
+	// 카테고리 수정
+	public Long update(Long categoryId, Category category) {
+		Connection connection = null;
+		PreparedStatement statement = null;
+		try {
+			String sql = "UPDATE category SET name = ? WHERE id = ?";
+			connection = dataSource.getConnection();
+			statement = connection.prepareStatement(sql);
+			statement.setString(1, category.getName());
+			statement.setLong(2, categoryId);
+			statement.executeUpdate();
+		} catch (SQLException e) {
+			throw new RuntimeException(e.getSQLState());
+		} finally {
+			try {
+				statement.close();
+				connection.close();
+			} catch (SQLException e) {
+				throw new RuntimeException(e.getMessage());
+			}
+		}
+		return categoryId;
 	}
 }
