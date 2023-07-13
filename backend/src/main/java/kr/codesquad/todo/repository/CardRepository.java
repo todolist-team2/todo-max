@@ -45,4 +45,27 @@ public class CardRepository {
 		String updateById = "UPDATE card SET prev_card_id = :prevCardId WHERE id = :id";
 		jdbcTemplate.update(updateById, Map.of("id", id, "prevCardId", prevCardId));
 	}
+
+	public Optional<Long> findPrevIdById(Long cardId) {
+		String findPrevIdById = "SELECT prev_card_id FROM card WHERE id = :id";
+		try {
+			return Optional.ofNullable(jdbcTemplate.queryForObject(findPrevIdById, Map.of("id", cardId), Long.class));
+		} catch (EmptyResultDataAccessException e) {
+			return Optional.empty();
+		}
+	}
+
+	public void deleteById(Long cardId) {
+		String deleteById = "DELETE FROM card WHERE id = :id";
+		jdbcTemplate.update(deleteById, Map.of("id", cardId));
+	}
+
+	public Optional<Long> findIdByPrevId(Long prevId) {
+		String findByPrevId = "SELECT id FROM card WHERE prev_card_id = :prevId";
+		try {
+			return Optional.ofNullable(jdbcTemplate.queryForObject(findByPrevId, Map.of("prevId", prevId), Long.class));
+		} catch (EmptyResultDataAccessException e) {
+			return Optional.empty();
+		}
+	}
 }
