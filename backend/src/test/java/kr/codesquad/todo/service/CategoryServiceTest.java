@@ -2,6 +2,7 @@ package kr.codesquad.todo.service;
 
 import kr.codesquad.todo.domain.Category;
 import kr.codesquad.todo.dto.request.CategoryRequestDto;
+import kr.codesquad.todo.exeption.BusinessException;
 import kr.codesquad.todo.fixture.FixtureFactory;
 import kr.codesquad.todo.repository.CategoryRepository;
 import org.junit.jupiter.api.DisplayName;
@@ -47,4 +48,15 @@ class CategoryServiceTest {
         );
     }
 
+    @DisplayName("변경하고자 하는 카테고리 아이디가 존재하지 않는다면 수정이 불가하다.")
+    @Test
+    void modifyTest() {
+        // given
+        CategoryRequestDto categoryRequestDto = FixtureFactory.createCategoryRequest();
+        given(categoryRepository.existById(1L)).willReturn(Boolean.FALSE);
+
+        // when & then
+        assertThrows(BusinessException.class,
+                () -> categoryService.modifyCategory(1L, categoryRequestDto));
+    }
 }
