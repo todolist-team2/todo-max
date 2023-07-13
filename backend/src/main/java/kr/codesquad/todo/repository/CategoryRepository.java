@@ -31,6 +31,7 @@ public class CategoryRepository {
 	}
 
 
+	// 카테고리 추가
 	public Long save(Category category) {
 		return simpleJdbcInsert.executeAndReturnKey(new BeanPropertySqlParameterSource(category)).longValue();
 	}

@@ -12,6 +12,11 @@ public class CategoryService {
 
 	public CategoryService(CategoryRepository categoryRepository) {
 		this.categoryRepository = categoryRepository;
+	// TODO: 카테고리도 활동 기록에 저장해야 하는지?
+	// 카테고리 추가
+	public Long saveCategory(CategoryRequestDto categoryRequestDto) {
+		Long userAccountId = 1L;
+		return categoryRepository.save(categoryRequestDto.toEntity(userAccountId));
 	}
 
 

@@ -2,8 +2,9 @@ package kr.codesquad.todo.controller;
 
 
 import kr.codesquad.todo.dto.request.CategoryRequestDto;
-import kr.codesquad.todo.dto.response.CategoryResponseDto;
 import kr.codesquad.todo.service.CategoryService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -18,8 +19,9 @@ public class CategoryController {
 	}
 
 
+	// 카테고리 추가
 	@PostMapping("/category")
-	public Long createCategory(@RequestBody CategoryRequestDto categoryRequestDto) {
-		return categoryService.createCategory(categoryRequestDto);
+	public ResponseEntity<?> createCategory(@RequestBody CategoryRequestDto categoryRequestDto) {
+		return ResponseEntity.status(HttpStatus.CREATED).body(categoryService.saveCategory(categoryRequestDto));
 	}
 }
