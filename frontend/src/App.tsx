@@ -3,33 +3,17 @@ import styled, { ThemeProvider } from "styled-components";
 import HistoryButton from "./components/HistoryButton";
 import Logo from "./components/Logo";
 import Modal from "./components/Modal";
-import Container from "./styles/Container";
 import Board from "./components/Board";
 import UserActionLogList from "./components/UserActionLogList";
 import CommonStyle from "./styles/CommonStyle";
 import Header from "./components/landmark/Header";
 import Main from "./components/landmark/Main";
 import Aside from "./components/landmark/landmark";
+import { theme } from "./theme";
 
 export default function App() {
   const [isUserLogOpened, setIsUserLogOpened] = useState<boolean>(false);
   const [message, setMessage] = useState<string>("");
-
-  const theme = {
-    font: {
-      bold: {
-        L: "700 1.7143rem",
-        M: "700 1.143rem",
-        R: "700 1rem",
-        S: "700 0.86rem"
-      },
-      medium: {
-        M: "700 1.143rem/1.57rem",
-        R: "700 1rem",
-        S: "700 0.86rem"
-      }
-    }
-  };
 
   function clearMessage() {
     setMessage("");
@@ -43,13 +27,6 @@ export default function App() {
     setIsUserLogOpened((bool) => !bool);
   }
 
-  const AppStyledDiv = styled.div`
-    position: relative;
-    width: 100vw;
-    height: 100vh;
-    top: 0;
-    left: 0;
-  `;
   return (
     <AppStyledDiv>
       <CommonStyle />
@@ -71,3 +48,16 @@ export default function App() {
     </AppStyledDiv>
   );
 }
+
+const AppStyledDiv = styled.div`
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  top: 0;
+  left: 0;
+`;
+
+const Container = styled.div`
+  display: flex;
+`;
+

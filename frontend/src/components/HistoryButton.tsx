@@ -1,4 +1,4 @@
-import Log from "../../public/log.svg";
+import Log from "/log.svg";
 
 export default function HistoryButton({ toggleActiveUserLog }: { toggleActiveUserLog: () => void }) {
   return (
