@@ -13,6 +13,16 @@ public class Action {
 
 	private Long userId;
 
+	public Action(Long id, String actionName, String cardName, String originCategoryName, String targetCategoryName, LocalDateTime createdAt, Long userId) {
+		this.id = id;
+		this.actionName = actionName;
+		this.cardName = cardName;
+		this.originCategoryName = originCategoryName;
+		this.targetCategoryName = targetCategoryName;
+		this.createdAt = createdAt;
+		this.userId = userId;
+	}
+
 	public Long getId() {
 		return id;
 	}
