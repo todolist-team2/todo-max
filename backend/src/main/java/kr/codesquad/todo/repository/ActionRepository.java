@@ -68,3 +68,24 @@ public class ActionRepository {
 				rs.getTimestamp("created_at").toLocalDateTime(),
 				rs.getLong("user_id"));
 	}
+
+	public void deleteAll() {
+		Connection connection = null;
+		PreparedStatement statement = null;
+		try {
+			String sql = "DELETE FROM action";
+			connection = dataSource.getConnection();
+			statement = connection.prepareStatement(sql);
+			statement.executeUpdate();
+		} catch (SQLException e) {
+			throw new RuntimeException(e.getSQLState());
+		} finally {
+			try {
+				statement.close();
+				connection.close();
+			} catch (SQLException e) {
+				throw new RuntimeException(e);
+			}
+		}
+	}
+}

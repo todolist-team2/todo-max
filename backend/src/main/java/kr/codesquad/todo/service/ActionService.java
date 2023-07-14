@@ -29,3 +29,12 @@ public class ActionService {
 		// Action 의 userId 를 통해 유저 정보를 가져와서 ActionResponse 에 넣어주는 작업이 필요하다.
 		return ActionResponse.of(actionList, nickname, imageUrl);
 	}
+
+	// 활동기록(히스토리) 전체 삭제
+	public void deleteActions() {
+		// 나중에 활동기록 마다 유저 정보가 다를 수 있다면
+		// 로그인된 유저 정보를 이용해서 본인의 활동기록만 삭제할 수 있도록 해야한다.
+
+		actionRepository.deleteAll();
+	}
+}

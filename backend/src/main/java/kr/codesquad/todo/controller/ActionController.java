@@ -24,3 +24,11 @@ public class ActionController {
 	                                                        @RequestParam(defaultValue = "20") int size) {
 		return ResponseEntity.ok(actionService.getActions(page, size));
 	}
+
+	// 활동기록(히스토리) 전체 삭제
+	@DeleteMapping("/actions")
+	public ResponseEntity<Void> deleteActions() {
+		actionService.deleteActions();
+		return ResponseEntity.noContent().build();
+	}
+}
