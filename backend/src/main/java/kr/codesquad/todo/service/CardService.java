@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import kr.codesquad.todo.dto.request.CardCreationRequest;
+import kr.codesquad.todo.dto.request.CardMoveRequest;
 import kr.codesquad.todo.dto.response.CardData;
 import kr.codesquad.todo.dto.response.CardsResponse;
 import kr.codesquad.todo.exeption.BusinessException;
@@ -41,7 +42,9 @@ public class CardService {
 	public void delete(Long cardId) {
 		Long prevId = cardRepository.findPrevIdById(cardId)
 			.orElseThrow(() -> new BusinessException(ErrorCode.CARD_NOT_FOUND));
-		Long nextId = cardRepository.findIdByPrevId(cardId).orElse(-1L);
+		Long categoryId = cardRepository.findCategoryIdById(cardId)
+			.orElseThrow(() -> new BusinessException(ErrorCode.CARD_NOT_FOUND));
+		Long nextId = cardRepository.findIdByPrevId(cardId, categoryId).orElse(-1L);
 		cardRepository.deleteById(cardId);
 		if (nextId != -1L) {
 			cardRepository.updateById(nextId, prevId);
@@ -49,6 +52,23 @@ public class CardService {
 	}
 
 	@Transactional
+	public void move(Long cardId, CardMoveRequest cardMoveRequest) {
+		Long categoryId = cardRepository.findCategoryIdById(cardId)
+			.orElseThrow(() -> new BusinessException(ErrorCode.CARD_NOT_FOUND));
+		if (cardMoveRequest.isSamePosition(categoryId)) {
+			return;
+		}
+		cardRepository.findIdByPrevId(cardId, categoryId)
+			.ifPresent(
+				originNextCardId -> cardRepository.updateById(originNextCardId, cardMoveRequest.getFromPrevCardId()));
+
+		cardRepository.findIdByPrevId(cardMoveRequest.getToPrevCardId(), cardMoveRequest.getToCategoryId())
+			.ifPresent(targetNextCardId -> cardRepository.updateById(targetNextCardId, cardId));
+		cardRepository.updateCategoryIdAndPrevCardIdById(cardId, cardMoveRequest.getToCategoryId(),
+			cardMoveRequest.getToPrevCardId());
+  }
+
+  @Transactional
 	public void update(Long cardId, CardCreationRequest cardCreationRequest) {
 		cardRepository.update(cardId, cardCreationRequest.getTitle(), cardCreationRequest.getContent());
 	}

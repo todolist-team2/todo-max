@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import kr.codesquad.todo.dto.request.CardCreationRequest;
+import kr.codesquad.todo.dto.request.CardMoveRequest;
 import kr.codesquad.todo.dto.response.CardData;
 import kr.codesquad.todo.dto.response.CardsResponse;
 import kr.codesquad.todo.service.CardService;
@@ -43,6 +45,14 @@ public class CardController {
 	public ResponseEntity<Void> delete(@PathVariable Long cardId) {
 		cardService.delete(cardId);
 		return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+	}
+
+	@PatchMapping("/{cardId}")
+	public ResponseEntity<Void> move(
+		@PathVariable Long cardId,
+		@RequestBody CardMoveRequest cardMoveRequest) {
+		cardService.move(cardId, cardMoveRequest);
+		return ResponseEntity.ok().build();
 	}
 
 	@PutMapping("/{cardId}")

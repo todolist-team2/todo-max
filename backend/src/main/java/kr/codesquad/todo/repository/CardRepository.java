@@ -8,6 +8,7 @@ import javax.sql.DataSource;
 
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.dao.support.DataAccessUtils;
+
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -76,13 +77,25 @@ public class CardRepository {
 		jdbcTemplate.update(deleteById, Map.of("id", cardId));
 	}
 
-	public Optional<Long> findIdByPrevId(Long prevId) {
-		String findByPrevId = "SELECT id FROM card WHERE prev_card_id = :prevId";
-		try {
-			return Optional.ofNullable(jdbcTemplate.queryForObject(findByPrevId, Map.of("prevId", prevId), Long.class));
-		} catch (EmptyResultDataAccessException e) {
-			return Optional.empty();
-		}
+	public Optional<Long> findIdByPrevId(Long prevId, Long categoryId) {
+		String findByPrevId = "SELECT id FROM card WHERE prev_card_id = :prevId AND category_id = :categoryId";
+		return Optional.ofNullable(DataAccessUtils.singleResult(jdbcTemplate.query(findByPrevId,
+			Map.of("prevId", prevId, "categoryId", categoryId),
+			(rs, rowNum) -> rs.getLong("id"))));
+	}
+
+	public Optional<Long> findCategoryIdById(Long id) {
+		String findCategoryIdById = "SELECT category_id FROM card WHERE id = :id";
+		return Optional.ofNullable(DataAccessUtils.singleResult(jdbcTemplate.query(findCategoryIdById,
+			Map.of("id", id),
+			(rs, rowNum) -> rs.getLong("category_id"))));
+	}
+
+	public void updateCategoryIdAndPrevCardIdById(Long id, Long categoryId, Long prevId) {
+		String updateCategoryIdAndPrevCardIdById =
+			"UPDATE card SET prev_card_id = :prevId, category_id = :categoryId WHERE id = :id";
+		jdbcTemplate.update(updateCategoryIdAndPrevCardIdById,
+			Map.of("prevId", prevId, "categoryId", categoryId, "id", id));
 	}
 
 	public void update(Long id, String title, String content) {
