@@ -54,7 +54,7 @@ public class CardService {
 		return CardsResponse.listFrom(cardData);
 	}
 
-	@Transactional
+	@Transactional(readOnly = true)
 	public CardsResponse retrieveOne(Long categoryId) {
 		List<CardData> cardData = cardRepository.findByCategoryId(categoryId);
 		return CardsResponse.singleFrom(cardData);

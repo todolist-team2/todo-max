@@ -23,6 +23,14 @@ public class CardRepository {
 	private final NamedParameterJdbcTemplate jdbcTemplate;
 	private final SimpleJdbcInsert simpleJdbcInsert;
 
+	private static final RowMapper<CardData> cardDataRowMapper = ((rs, rowNum) -> new CardData(
+		rs.getLong("id"),
+		rs.getString("title"),
+		rs.getString("content"),
+		rs.getString("nickname"),
+		rs.getLong("prev_card_id"),
+		new CategoryResponse(rs.getLong("category_id"), rs.getString("name"))));
+
 	public CardRepository(NamedParameterJdbcTemplate jdbcTemplate, DataSource dataSource) {
 		this.jdbcTemplate = jdbcTemplate;
 		this.simpleJdbcInsert = new SimpleJdbcInsert(dataSource)
@@ -79,17 +87,7 @@ public class CardRepository {
 				+ "RIGHT JOIN category cg ON c.category_id = cg.id "
 				+ "LEFT JOIN user_account u ON cg.user_account_id = u.id "
 				+ "WHERE u.id = 1";
-		return jdbcTemplate.query(findAll, cardDataRowMapper());
-	}
-
-	private RowMapper<CardData> cardDataRowMapper() {
-		return ((rs, rowNum) -> new CardData(
-			rs.getLong("id"),
-			rs.getString("title"),
-			rs.getString("content"),
-			rs.getString("nickname"),
-			rs.getLong("prev_card_id"),
-			new CategoryResponse(rs.getLong("category_id"), rs.getString("name"))));
+		return jdbcTemplate.query(findAll, cardDataRowMapper);
 	}
 
 	public List<CardData> findByCategoryId(Long categoryId) {
@@ -98,6 +96,6 @@ public class CardRepository {
 				+ "RIGHT JOIN category cg ON c.category_id = cg.id "
 				+ "LEFT JOIN user_account u ON cg.user_account_id = u.id "
 				+ "WHERE u.id = 1 AND cg.id = :categoryId";
-		return jdbcTemplate.query(findByCategoryId, Map.of("categoryId", categoryId), cardDataRowMapper());
+		return jdbcTemplate.query(findByCategoryId, Map.of("categoryId", categoryId), cardDataRowMapper);
 	}
 }
