@@ -1,10 +1,13 @@
 package kr.codesquad.todo.service;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import kr.codesquad.todo.dto.request.CardCreationRequest;
 import kr.codesquad.todo.dto.response.CardData;
+import kr.codesquad.todo.dto.response.CardsResponse;
 import kr.codesquad.todo.exeption.BusinessException;
 import kr.codesquad.todo.exeption.ErrorCode;
 import kr.codesquad.todo.repository.CardRepository;
@@ -55,4 +58,15 @@ public class CardService {
 		return cardRepository.findById(cardId).orElseThrow(() -> new BusinessException(ErrorCode.CARD_NOT_FOUND));
 	}
 
+	@Transactional(readOnly = true)
+	public List<CardsResponse> retrieveAll() {
+		List<CardData> cardData = cardRepository.findAll();
+		return CardsResponse.listFrom(cardData);
+	}
+
+	@Transactional(readOnly = true)
+	public CardsResponse retrieveOne(Long categoryId) {
+		List<CardData> cardData = cardRepository.findByCategoryId(categoryId);
+		return CardsResponse.singleFrom(cardData);
+	}
 }

@@ -1,5 +1,6 @@
 package kr.codesquad.todo.controller;
 
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.http.HttpStatus;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import kr.codesquad.todo.dto.request.CardCreationRequest;
 import kr.codesquad.todo.dto.response.CardData;
+import kr.codesquad.todo.dto.response.CardsResponse;
 import kr.codesquad.todo.service.CardService;
 
 @RequestMapping(produces = MediaType.APPLICATION_JSON_VALUE, path = "/api/cards")
@@ -54,5 +56,17 @@ public class CardController {
 	public ResponseEntity<CardData> getById(@PathVariable Long cardId) {
 		CardData card = cardService.getById(cardId);
 		return ResponseEntity.ok(card);
+  }
+  
+	@GetMapping
+	public ResponseEntity<List<CardsResponse>> retrieveAll() {
+		return ResponseEntity.status(HttpStatus.OK)
+			.body(cardService.retrieveAll());
+	}
+
+	@GetMapping(params = "categoryId")
+	public ResponseEntity<CardsResponse> retrieveOne(@RequestParam Long categoryId) {
+		return ResponseEntity.status(HttpStatus.OK)
+			.body(cardService.retrieveOne(categoryId));
 	}
 }

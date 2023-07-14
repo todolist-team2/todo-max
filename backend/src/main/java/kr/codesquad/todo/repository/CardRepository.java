@@ -1,5 +1,6 @@
 package kr.codesquad.todo.repository;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -7,6 +8,7 @@ import javax.sql.DataSource;
 
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.dao.support.DataAccessUtils;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -17,11 +19,21 @@ import org.springframework.stereotype.Repository;
 import kr.codesquad.todo.domain.Card;
 import kr.codesquad.todo.dto.response.CardData;
 
+import kr.codesquad.todo.dto.response.CategoryResponse;
+
 @Repository
 public class CardRepository {
 
 	private final NamedParameterJdbcTemplate jdbcTemplate;
 	private final SimpleJdbcInsert simpleJdbcInsert;
+
+	private static final RowMapper<CardData> cardDataRowMapper = ((rs, rowNum) -> new CardData(
+		rs.getLong("id"),
+		rs.getString("title"),
+		rs.getString("content"),
+		rs.getString("nickname"),
+		rs.getLong("prev_card_id"),
+		new CategoryResponse(rs.getLong("category_id"), rs.getString("name"))));
 
 	public CardRepository(NamedParameterJdbcTemplate jdbcTemplate, DataSource dataSource) {
 		this.jdbcTemplate = jdbcTemplate;
@@ -100,5 +112,28 @@ public class CardRepository {
 				)
 			)
 		);
+  }
+  
+	public List<CardData> findAll() {
+		String findAll =
+			"SELECT c.id, c.title, c.content, u.nickname, c.prev_card_id, cg.id as category_id, cg.name FROM card c "
+				+ "RIGHT JOIN category cg ON c.category_id = cg.id "
+				+ "LEFT JOIN user_account u ON cg.user_account_id = u.id "
+				+ "WHERE u.id = 1";
+		return jdbcTemplate.query(findAll, cardDataRowMapper);
+	}
+
+	public List<CardData> findByCategoryId(Long categoryId) {
+		String findByCategoryId =
+			"SELECT c.id, c.title, c.content, u.nickname, c.prev_card_id, cg.id as category_id, cg.name FROM card c "
+				+ "RIGHT JOIN category cg ON c.category_id = cg.id "
+				+ "LEFT JOIN user_account u ON cg.user_account_id = u.id "
+				+ "WHERE u.id = 1 AND cg.id = :categoryId";
+		return jdbcTemplate.query(findByCategoryId, Map.of("categoryId", categoryId), cardDataRowMapper);
+  }
+
+	public void deleteAllByCategoryId(Long categoryId) {
+		String deleteAllByCategoryId = "DELETE FROM card WHERE category_id = :categoryId";
+		jdbcTemplate.update(deleteAllByCategoryId, Map.of("categoryId", categoryId));
 	}
 }

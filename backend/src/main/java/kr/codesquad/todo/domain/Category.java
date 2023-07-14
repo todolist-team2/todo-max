@@ -17,4 +17,9 @@ public class Category {
 	public Long getUserAccountId() {
 		return userAccountId;
 	}
+
+	public Category(String name, Long userAccountId) {
+		this.name = name;
+		this.userAccountId = userAccountId;
+	}
 }

@@ -12,6 +12,7 @@ import org.springframework.test.context.jdbc.Sql;
 
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
+import org.springframework.http.HttpStatus;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
 
@@ -46,6 +47,14 @@ public class TodoTest {
 		return RestAssured
 			.given().log().all()
 			.when().get("/api/cards/1")
+      .then().log().all()
+			.extract();
+  }
+
+	private static ExtractableResponse<Response> 전체_카드_조회() {
+		return RestAssured
+			.given().log().all()
+			.when().get("/api/cards")
 			.then().log().all()
 			.extract();
 	}
@@ -55,6 +64,14 @@ public class TodoTest {
 			.given().log().all().queryParam("cardId", "1")
 			.contentType(ContentType.JSON).body(Map.of("title", "변경후 타이틀", "content", "수정후 내용"))
 			.when().put("/api/cards/1")
+      .then().log().all()
+			.extract();
+  }
+
+	private static ExtractableResponse<Response> 카테고리별_카드_조회(int categoryId) {
+		return RestAssured
+			.given().log().all().queryParam("categoryId", categoryId)
+			.when().get("/api/cards")
 			.then().log().all()
 			.extract();
 	}
@@ -66,5 +83,38 @@ public class TodoTest {
 			.when().post("/api/cards")
 			.then().log().all()
 			.extract();
+  }
+
+	@DisplayName("전체 카드를 조회한다.")
+	@Test
+	void retrieveAllCards() {
+		// when
+		var response = 전체_카드_조회();
+
+		// then
+		assertThat(response.statusCode()).isEqualTo(200);
+	}
+
+	@DisplayName("카테고리별 카드 조회를 성공한다.")
+	@Test
+	void retrieveOneCards_success() {
+		// when
+		var response = 카테고리별_카드_조회(1);
+
+		// then
+		assertAll(
+			() -> assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value()),
+			() -> assertThat(response.jsonPath().getString("categoryId")).isNotEmpty()
+		);
+	}
+
+	@DisplayName("카테고리별 카드 조회를 실패한다.")
+	@Test
+	void retrieveOneCards_fail() {
+		// when
+		var response = 카테고리별_카드_조회(100000);
+
+		// then
+		assertThat(response.statusCode()).isEqualTo(HttpStatus.NOT_FOUND.value());
 	}
 }
