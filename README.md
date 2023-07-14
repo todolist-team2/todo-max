@@ -4,7 +4,7 @@
 | team | members                                        | repository                                       |
 | ---- | ---------------------------------------------- | ------------------------------------------------ |
 | 1    |                                                |                                                  |
-| 2    |                                                |                                                  |
+| 2    |`Max-BE`Albert, TOMMY, 위즈,Hana,브루니    `Max-FE` : geppetto, Jello(max-FE)                                              |[주소](https://github.com/todolist-team2/todo-max)|
 | 3    |  |  |
 | 4    |  |  |
 | 5    |  |  |
