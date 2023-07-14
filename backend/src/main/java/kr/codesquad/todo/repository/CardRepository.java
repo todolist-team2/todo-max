@@ -97,5 +97,9 @@ public class CardRepository {
 				+ "LEFT JOIN user_account u ON cg.user_account_id = u.id "
 				+ "WHERE u.id = 1 AND cg.id = :categoryId";
 		return jdbcTemplate.query(findByCategoryId, Map.of("categoryId", categoryId), cardDataRowMapper);
+
+	public void deleteAllByCategoryId(Long categoryId) {
+		String deleteAllByCategoryId = "DELETE FROM card WHERE category_id = :categoryId";
+		jdbcTemplate.update(deleteAllByCategoryId, Map.of("categoryId", categoryId));
 	}
 }
