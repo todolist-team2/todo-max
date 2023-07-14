@@ -1,9 +1,9 @@
 import { styled } from "styled-components";
 import { TTheme } from "../types/theme";
-import Plus from "/plus.svg";
+import CloseDanger from "/close-danger.svg";
 import Close from "/close.svg";
 import Edit from "/edit.svg";
-import { useState } from "react";
+import Plus from "/plus.svg";
 
 type data = {
   title: string;
@@ -40,8 +40,23 @@ const dummy = [
   },
 ];
 
-function Board() {
-  return <BoardStyledUl>{dummy.map(Column)}</BoardStyledUl>;
+function Board({ handleDeleteButtonClick }: { handleDeleteButtonClick: (content: string, callback: () => void) => void }) {
+  return (
+    <BoardStyledUl>
+      {dummy.map((item, index) => {
+        const changeItem = (newData: data[]) => {
+          console.log(item.data, newData);
+          item.data = newData;
+        };
+
+        return (
+          <li key={index}>
+            <Column {...item} handleDeleteButtonClick={handleDeleteButtonClick} changeItem={changeItem} />
+          </li>
+        );
+      })}
+    </BoardStyledUl>
+  );
 }
 
 const BoardStyledUl = styled.ul`
@@ -55,21 +70,39 @@ const BoardStyledUl = styled.ul`
   }
 `;
 
-function Column({ name, data }: { name: string; data: data[] }, index: number) {
+function Column({
+  name,
+  data,
+  handleDeleteButtonClick,
+  changeItem,
+}: {
+  name: string;
+  data: data[];
+  handleDeleteButtonClick: (content: string, callback: () => void) => void;
+  changeItem: (newData: data[]) => void;
+}) {
   return (
-    <ColumnStyledLi key={index}>
+    <ColumnStyledArticle>
       <ColumnTitleStyledDiv>
         <h3 data-badge={data.length}>{name}</h3>
         <ColumnControl />
       </ColumnTitleStyledDiv>
       <ColumnStyledUl>
-        {data.map((data, index) => (
-          <li key={index}>
-            <Card {...data} />
-          </li>
-        ))}
+        {data.map((d, index, data) => {
+          const deleteCurrCard = () => {
+            const newData = data.filter((item) => item !== d);
+            console.log(newData)
+            changeItem(newData);
+          };
+
+          return (
+            <li key={index}>
+              <Card {...d} handleDeleteButtonClick={() => handleDeleteButtonClick("선택한 카드를 삭제할까요?", deleteCurrCard)} />
+            </li>
+          );
+        })}
       </ColumnStyledUl>
-    </ColumnStyledLi>
+    </ColumnStyledArticle>
   );
 }
 
@@ -90,10 +123,7 @@ function ColumnControl() {
   );
 }
 
-function ColumnControlBtn(
-  { icon, alt }: { icon: string; alt: string },
-  index: number
-) {
+function ColumnControlBtn({ icon, alt }: { icon: string; alt: string }, index: number) {
   return (
     <ColumnControlBtnStyledLi key={index}>
       <button>
@@ -128,7 +158,7 @@ const ColumnControlStyledUl = styled.ul`
   gap: 8px;
 `;
 
-const ColumnStyledLi = styled.li<{ theme: TTheme }>`
+const ColumnStyledArticle = styled.li<{ theme: TTheme }>`
   min-width: 300px;
 `;
 
@@ -160,7 +190,7 @@ const ColumnTitleStyledDiv = styled.div<{ theme: TTheme }>`
   }
 `;
 
-function Card({ title, text }: { title: string; text: string }) {
+function Card({ title, text, handleDeleteButtonClick }: { title: string; text: string; handleDeleteButtonClick: () => void }) {
   return (
     <CardStyledArticle>
       <h4 className="blind">카드</h4>
@@ -171,13 +201,14 @@ function Card({ title, text }: { title: string; text: string }) {
       </div>
       <ul>
         <li>
-          <button>
-            <img className="del" src={Close} alt="삭제" />
+          <button className="del" onClick={handleDeleteButtonClick}>
+            <img src={Close} alt="삭제" />
+            <img src={CloseDanger} alt="삭제" />
           </button>
         </li>
         <li>
-          <button>
-            <img className="edit" src={Edit} alt="수정" />
+          <button className="edit">
+            <img src={Edit} alt="수정" />
           </button>
         </li>
       </ul>
@@ -222,62 +253,26 @@ const CardStyledArticle = styled.article<{ theme: TTheme }>`
       background-color: transparent;
       border: 0;
       padding: 0;
-      img {
-        &.del {
-          padding: 5px;
+      cursor: pointer;
+      &.del {
+        padding: 5px;
+        img:first-child {
+          display: block;
         }
-        &.edit {
-          padding: 4px;
+        img:last-child {
+          display: none;
+        }
+        &:hover {
+          img:first-child {
+            display: none;
+          }
+          img:last-child {
+            display: block;
+          }
         }
       }
-    }
-  }
-`;
-
-const CardStyledLi = styled.li<{ theme: TTheme }>`
-  padding: 16px;
-  border-radius: 8px;
-  background-color: ${(props) => props.theme.color.surface.default};
-  box-shadow: 0px 1px 4px rgba(110, 128, 145, 0.24);
-  display: flex;
-  align-items: flex-start;
-  gap: 16px;
-
-  h4 {
-    font: ${(props) => props.theme.font.display.bold14};
-    color: ${(props) => props.theme.color.text.strong};
-    margin-bottom: 8px;
-  }
-
-  pre {
-    font: ${(props) => props.theme.font.display.medium14};
-    color: ${(props) => props.theme.color.text.default};
-    margin-bottom: 16px;
-  }
-
-  p {
-    font: ${(props) => props.theme.font.display.medium12};
-    color: ${(props) => props.theme.color.text.weak};
-  }
-
-  .inner {
-    flex-grow: 1;
-  }
-
-  ul {
-    flex-shrink: 0;
-    button {
-      display: block;
-      background-color: transparent;
-      border: 0;
-      padding: 0;
-      img {
-        &.del {
-          padding: 5px;
-        }
-        &.edit {
-          padding: 4px;
-        }
+      &.edit {
+        padding: 4px;
       }
     }
   }

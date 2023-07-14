@@ -1,20 +1,19 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import styled, { ThemeProvider } from "styled-components";
+import Board from "./components/Board";
+import HistoryBtn from "./components/HistoryBtn";
 import Logo from "./components/Logo";
 import Modal from "./components/Modal";
-import Board from "./components/Board";
-import UserActionLogList from "./components/UserActionLogList";
-import CommonStyle from "./styles/CommonStyle";
 import Header from "./components/landmark/Header";
 import Main from "./components/landmark/Main";
-import Aside from "./components/landmark/landmark";
+import CommonStyle from "./styles/CommonStyle";
 import { theme } from "./theme";
-import HistoryBtn from "./components/HistoryBtn";
 import { TTheme } from "./types/theme";
 
 export default function App() {
   const [isUserLogOpened, setIsUserLogOpened] = useState<boolean>(false);
   const [message, setMessage] = useState<string>("");
+  const callbackTemp = useRef<() => void | undefined>();
 
   function clearMessage() {
     setMessage("");
@@ -22,6 +21,14 @@ export default function App() {
 
   function dummyAction() {
     clearMessage();
+    if (callbackTemp.current) {
+      callbackTemp.current();
+    }
+  }
+
+  function openConfirmModal(content: string, callback: () => void) {
+    setMessage(content);
+    callbackTemp.current = callback;
   }
 
   function toggleActiveUserLog() {
@@ -38,7 +45,7 @@ export default function App() {
         </Header>
         <Container>
           <Main>
-            <Board />
+            <Board handleDeleteButtonClick={openConfirmModal} />
           </Main>
           {/* <Aside>
             <UserActionLogList />
