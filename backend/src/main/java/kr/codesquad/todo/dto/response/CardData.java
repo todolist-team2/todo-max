@@ -9,7 +9,7 @@ public class CardData {
 	private final String content;
 	private final String nickname;
 	private final Long prevCardId;
-	private final CategoryResponse categoryResponse;
+	private CategoryResponse categoryResponse;
 
 	public CardData(Long id, String title, String content, String nickname, Long prevCardId,
 		CategoryResponse categoryResponse) {
@@ -19,6 +19,14 @@ public class CardData {
 		this.nickname = nickname;
 		this.prevCardId = prevCardId;
 		this.categoryResponse = categoryResponse;
+	}
+
+	public CardData(Long id, String title, String content, String nickname) {
+		this.id = id;
+		this.title = title;
+		this.content = content;
+		this.nickname = nickname;
+		this.prevCardId = 0L;
 	}
 
 	public Long getId() {
