@@ -68,4 +68,10 @@ public class CardRepository {
 			return Optional.empty();
 		}
 	}
+
+
+	public void deleteAllByCategoryId(Long categoryId) {
+		String deleteAllByCategoryId = "DELETE FROM card WHERE category_id = :categoryId";
+		jdbcTemplate.update(deleteAllByCategoryId, Map.of("categoryId", categoryId));
+	}
 }
