@@ -10,12 +10,14 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import kr.codesquad.todo.dto.request.CardCreationRequest;
+import kr.codesquad.todo.dto.response.CardData;
 import kr.codesquad.todo.dto.response.CardsResponse;
 import kr.codesquad.todo.service.CardService;
 
@@ -43,6 +45,19 @@ public class CardController {
 		return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 	}
 
+	@PutMapping("/{cardId}")
+	public ResponseEntity<Void> update(@PathVariable Long cardId,
+		@RequestBody CardCreationRequest cardCreationRequest) {
+		cardService.update(cardId, cardCreationRequest);
+		return ResponseEntity.ok().build();
+	}
+
+	@GetMapping("/{cardId}")
+	public ResponseEntity<CardData> getById(@PathVariable Long cardId) {
+		CardData card = cardService.getById(cardId);
+		return ResponseEntity.ok(card);
+  }
+  
 	@GetMapping
 	public ResponseEntity<List<CardsResponse>> retrieveAll() {
 		return ResponseEntity.status(HttpStatus.OK)

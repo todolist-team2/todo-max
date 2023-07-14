@@ -48,6 +48,16 @@ public class CardService {
 		}
 	}
 
+	@Transactional
+	public void update(Long cardId, CardCreationRequest cardCreationRequest) {
+		cardRepository.update(cardId, cardCreationRequest.getTitle(), cardCreationRequest.getContent());
+	}
+
+	@Transactional(readOnly = true)
+	public CardData getById(Long cardId) {
+		return cardRepository.findById(cardId).orElseThrow(() -> new BusinessException(ErrorCode.CARD_NOT_FOUND));
+	}
+
 	@Transactional(readOnly = true)
 	public List<CardsResponse> retrieveAll() {
 		List<CardData> cardData = cardRepository.findAll();
