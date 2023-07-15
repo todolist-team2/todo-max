@@ -10,43 +10,43 @@
         <code>알</code>
       </th>
       <th>
-        Albert
+        버트
       </th>
       <th width="12">
         <code>젤</code>
       </th>
       <th>
-        Jello
+        로
       </th>
       <th width="12">
         <code>위</code>
       </th>
       <th>
-        위즈
+        즈
       </th>
       <th width="12">
         <code>브</code>
       </th>
       <th>
-        브루니
+        루니
       </th>
       <th width="12">
         <code>토</code>
       </th>
       <th>
-        TOMMY
+        미
       </th>
       <th width="12">
         <code>하</code>
       </th>
       <th>
-        Hana
+        나
       </th>
       <th width="12">
         <code>제</code>
       </th>
       <th>
-        geppetto
+        패토
       </th>
     </tr>
   </thead>
