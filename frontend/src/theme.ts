@@ -1,6 +1,7 @@
 import { TTheme } from "./types/theme";
 
-const fontFamily = '"Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif'
+const fontFamily =
+  '"Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif';
 
 export const theme: TTheme = {
   font: {
@@ -57,8 +58,8 @@ export const theme: TTheme = {
       default: "#6E7191",
       weak: "#A0A3BD",
       white: {
-        default:"#FEFEFE",
-        weak: "#F7F7FC"
+        default: "#FEFEFE",
+        weak: "#F7F7FC",
       },
       brand: "#007AFF",
       danger: "#FF3B30",
@@ -67,10 +68,22 @@ export const theme: TTheme = {
       default: "#FEFEFE",
       alt: "#F7F7FC",
       brand: "#007AFF",
-      danger:"#FF3B30"
+      danger: "#FF3B30",
     },
-    border: {   
-      default: "#EFF0F6"
-    }
+    border: {
+      default: "#EFF0F6",
+    },
+  },
+  objectStyles: {
+    radius: {
+      s: "8px",
+      m: "16px",
+      l: "50%",
+    },
+    dropShadow: {
+      normal: "0px 1px 4px 0px rgba(110, 128, 145, 0.24)",
+      up: "0px 2px 8px 0px rgba(110, 128, 145, 0.16), 0px 2px 8px 0px rgba(110, 128, 145, 0.16)",
+      floating: "0px 16px 16px 0 rgba(110, 128, 145, 0.24), 0px 0px 4px 0px rgba(110, 128, 145, 0.08)",
+    },
   },
 };
