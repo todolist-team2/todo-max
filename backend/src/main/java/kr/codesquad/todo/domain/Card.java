@@ -10,7 +10,27 @@ public class Card {
 	private LocalDateTime createdAt;
 	private LocalDateTime modifiedAt;
 	private Long categoryId;
-	private Long childCardId;
+	private Long prevCardId;
+
+	public Card(Long categoryId, String title, String content) {
+		this.categoryId = categoryId;
+		this.title = title;
+		this.content = content;
+		this.prevCardId = 0L;
+		this.createdAt = LocalDateTime.now();
+		this.modifiedAt = LocalDateTime.now();
+	}
+
+	public Card(Long id, String title, String content, LocalDateTime createdAt, LocalDateTime modifiedAt,
+		Long categoryId, Long prevCardId) {
+		this.id = id;
+		this.title = title;
+		this.content = content;
+		this.createdAt = createdAt;
+		this.modifiedAt = modifiedAt;
+		this.categoryId = categoryId;
+		this.prevCardId = prevCardId;
+	}
 
 	public Long getId() {
 		return id;
@@ -36,7 +56,7 @@ public class Card {
 		return categoryId;
 	}
 
-	public Long getChildCardId() {
-		return childCardId;
+	public Long getPrevCardId() {
+		return prevCardId;
 	}
 }
