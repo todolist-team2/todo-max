@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useRef, useState } from "react";
 import styled, { ThemeProvider } from "styled-components";
 import Board from "./components/Board";
 import HistoryBtn from "./components/HistoryBtn";

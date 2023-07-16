@@ -4,6 +4,7 @@ import CloseDanger from "/close-danger.svg";
 import Close from "/close.svg";
 import Edit from "/edit.svg";
 import Plus from "/plus.svg";
+import Card from "./Card";
 
 type data = {
   title: string;
@@ -97,7 +98,9 @@ function Column({
 
           return (
             <li key={index}>
-              <Card {...d} handleDeleteButtonClick={() => handleDeleteButtonClick("선택한 카드를 삭제할까요?", deleteCurrCard)} />
+              <Card
+              {...d} 
+              handleDeleteButtonClick={() => handleDeleteButtonClick("선택한 카드를 삭제할까요?", deleteCurrCard)} />
             </li>
           );
         })}
@@ -186,94 +189,6 @@ const ColumnTitleStyledDiv = styled.div<{ theme: TTheme }>`
       font: ${(props) => props.theme.font.display.medium12};
       color: ${(props) => props.theme.color.text.weak};
       border: 1px solid ${(props) => props.theme.color.border.default};
-    }
-  }
-`;
-
-function Card({ title, text, handleDeleteButtonClick }: { title: string; text: string; handleDeleteButtonClick: () => void }) {
-  return (
-    <CardStyledArticle>
-      <h4 className="blind">카드</h4>
-      <div className="inner">
-        <h4>{title}</h4>
-        <pre>{text}</pre>
-        <p>author by web</p>
-      </div>
-      <ul>
-        <li>
-          <button className="del" onClick={handleDeleteButtonClick}>
-            <img src={Close} alt="삭제" />
-            <img src={CloseDanger} alt="삭제" />
-          </button>
-        </li>
-        <li>
-          <button className="edit">
-            <img src={Edit} alt="수정" />
-          </button>
-        </li>
-      </ul>
-    </CardStyledArticle>
-  );
-}
-
-const CardStyledArticle = styled.article<{ theme: TTheme }>`
-  padding: 16px;
-  border-radius: 8px;
-  background-color: ${(props) => props.theme.color.surface.default};
-  box-shadow: 0px 1px 4px rgba(110, 128, 145, 0.24);
-  display: flex;
-  align-items: flex-start;
-  gap: 16px;
-
-  h4 {
-    font: ${(props) => props.theme.font.display.bold14};
-    color: ${(props) => props.theme.color.text.strong};
-    margin-bottom: 8px;
-  }
-
-  pre {
-    font: ${(props) => props.theme.font.display.medium14};
-    color: ${(props) => props.theme.color.text.default};
-    margin-bottom: 16px;
-  }
-
-  p {
-    font: ${(props) => props.theme.font.display.medium12};
-    color: ${(props) => props.theme.color.text.weak};
-  }
-
-  .inner {
-    flex-grow: 1;
-  }
-
-  ul {
-    flex-shrink: 0;
-    button {
-      display: block;
-      background-color: transparent;
-      border: 0;
-      padding: 0;
-      cursor: pointer;
-      &.del {
-        padding: 5px;
-        img:first-child {
-          display: block;
-        }
-        img:last-child {
-          display: none;
-        }
-        &:hover {
-          img:first-child {
-            display: none;
-          }
-          img:last-child {
-            display: block;
-          }
-        }
-      }
-      &.edit {
-        padding: 4px;
-      }
     }
   }
 `;
