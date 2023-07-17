@@ -19,7 +19,6 @@ public class CategoryService {
 		this.cardRepository = cardRepository;
 	}
 
-	// TODO: 카테고리도 활동 기록에 저장해야 하는지?
 	// 카테고리 추가
 	@Transactional
 	public Long createCategory(CategoryRequest categoryRequest) {
@@ -52,7 +51,6 @@ public class CategoryService {
 		// 존재한다면 해당 카테고리를 삭제
 		categoryRepository.delete(categoryId);
 
-		// TODO: 모든 카드 삭제에 대한 활동 기록?
 		// 해당 카테고리 아아디를 가진 카드들 전부 삭제
 		cardRepository.deleteAllByCategoryId(categoryId);
 	}
