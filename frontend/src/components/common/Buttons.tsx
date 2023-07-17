@@ -1,6 +1,6 @@
 import { styled } from "styled-components";
+import TTheme from "../../types/TTheme";
 import { IconRouter } from "./Icon";
-import { TTheme } from "../../types/TTheme";
 
 const Buttons = styled(
   ({
@@ -25,7 +25,8 @@ const Buttons = styled(
           value: value ? value : undefined,
           onClick: onClick ? () => onClick() : undefined,
           type: type ? type : undefined,
-        }}>
+        }}
+      >
         <span className="container">
           {icon && IconRouter(icon)}
           {text && <span className="text-label">{text}</span>}

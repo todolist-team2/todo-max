@@ -1,15 +1,13 @@
 import { css, styled } from "styled-components";
-import { TTheme } from "../../types/TTheme";
+import TTheme from "../../types/TTheme";
 
-export const Badge = styled(
-  ({ className, digit }: { className?: string; digit: number }) => {
-    return (
-      <span className={className}>
-        <span className="text-label">{digit}</span>
-      </span>
-    );
-  }
-)<{ theme: TTheme; $2DigitPlus: boolean }>`
+export const Badge = styled(({ className, digit }: { className?: string; digit: number }) => {
+  return (
+    <span className={className}>
+      <span className="text-label">{digit}</span>
+    </span>
+  );
+})<{ theme: TTheme; $2DigitPlus: boolean }>`
   height: 24px;
   padding: 4px;
   box-sizing: border-box;

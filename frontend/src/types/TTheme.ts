@@ -1,6 +1,6 @@
 // theme.ts
 
-export type TTheme = {
+type TTheme = {
   font: {
     bold: {
       L: string;
@@ -76,3 +76,5 @@ export type TTheme = {
     floating: string;
   };
 };
+
+export default TTheme;

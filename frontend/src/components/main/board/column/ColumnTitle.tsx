@@ -1,29 +1,19 @@
 import { css, styled } from "styled-components";
-import ColumnControl from "./ColumnControl";
+import TTheme from "../../../../types/TTheme";
 import { Badge } from "../../../common/Badge";
-import { TTheme } from "../../../../types/TTheme";
+import ColumnControl from "./ColumnControl";
 
-const ColumnTitle = styled(
-  ({
-    className,
-    title,
-    count,
-  }: {
-    className?: string;
-    title: string;
-    count: number;
-  }) => {
-    return (
-      <h3 className={className}>
-        <span className="text-aria">
-          <span className="title">{title}</span>
-          <Badge $2DigitPlus={count > 99} digit={count} />
-        </span>
-        <ColumnControl />
-      </h3>
-    );
-  }
-)<{ theme: TTheme }>`
+const ColumnTitle = styled(({ className, title, count }: { className?: string; title: string; count: number }) => {
+  return (
+    <h3 className={className}>
+      <span className="text-aria">
+        <span className="title">{title}</span>
+        <Badge $2DigitPlus={count > 99} digit={count} />
+      </span>
+      <ColumnControl />
+    </h3>
+  );
+})<{ theme: TTheme }>`
   width: 300px;
   padding: 0 16px;
   display: flex;

@@ -1,4 +1,6 @@
-export type TAlertState = {
+type TAlertState = {
   message: string;
   action: () => void;
 }
+
+export default TAlertState;

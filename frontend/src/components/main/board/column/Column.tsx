@@ -1,25 +1,15 @@
 import { styled } from "styled-components";
 
-import Card from "./card/Card";
-import ColumnTitle from "./ColumnTitle";
 import TCard from "../../../../types/TCard";
-import { TTheme } from "../../../../types/TTheme";
+import TTheme from "../../../../types/TTheme";
+import ColumnTitle from "./ColumnTitle";
+import Card from "./card/Card";
 
 const Column = styled(
-  ({
-    className,
-    name,
-    cards,
-    deleteCard,
-  }: {
-    className?: string;
-    name: string;
-    cards: TCard[];
-    deleteCard: (card: TCard) => void;
-  }) => {
+  ({ className, categoryId, categoryName, cards, deleteCard }: { className?: string; categoryId: number, categoryName: string, cards: TCard[]; deleteCard: (card: TCard) => void }) => {
     return (
       <article className={className}>
-        <ColumnTitle title={name} count={cards.length} />
+        <ColumnTitle title={categoryName} count={cards.length} />
         <ul className="card-list">
           {cards.map((card, index) => (
             <li key={index}>

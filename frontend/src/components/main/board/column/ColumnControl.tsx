@@ -1,6 +1,6 @@
 import { styled } from "styled-components";
+import TTheme from "../../../../types/TTheme";
 import Buttons from "../../../common/Buttons";
-import { TTheme } from "../../../../types/TTheme";
 
 const ColumnControl = styled(({ className }: { className?: string }) => {
   return (

@@ -1,12 +1,26 @@
 import { styled } from "styled-components";
 import Column from "./column/Column";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import TCard from "../../../types/TCard";
 import TColumn from "../../../types/TColumn";
-import { TTheme } from "../../../types/TTheme";
+import TTheme from "../../../types/TTheme";
 
 const Board = styled(({ className }: { className?: string }) => {
-  const [columns, setColumns] = useState<TColumn[]>(dummy);
+  const [columns, setColumns] = useState<TColumn[]>([]);
+
+  useEffect(() => {
+    (async function fetchAllData() {
+      const res = await fetch("/api/cards", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      const result = await res.json();
+      setColumns(result);
+    })();
+  }, []);
 
   function deleteCardFromColumn(columnIndex: number) {
     return (card: TCard) => {
@@ -41,35 +55,5 @@ const Board = styled(({ className }: { className?: string }) => {
     height: 0;
   }
 `;
-
-const dummy: TColumn[] = [
-  {
-    name: "해야할 일",
-    cards: [
-      {
-        title: "Github 공부하기",
-        text: "add, commit, push",
-      },
-    ],
-  },
-  {
-    name: "하고 있는 일",
-    cards: [
-      {
-        title: "Github 공부하기",
-        text: "add, commit, push",
-      },
-    ],
-  },
-  {
-    name: "완료한 일",
-    cards: [
-      {
-        title: "Github 공부하기",
-        text: "add, commit, push",
-      },
-    ],
-  },
-];
 
 export default Board;

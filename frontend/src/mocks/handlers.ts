@@ -1,18 +1,9 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
-/* eslint-disable no-undef */
 import { rest } from "msw";
 
-const todos = ["먹기", "자기", "달리기"];
-
 export const handlers = [
-  rest.get("/todos", async (req, res, ctx) => {
-    return res(ctx.status(200), ctx.json(todos));
-  }),
   // 전체 카드 목록 불러오기
   rest.get('/api/cards', async(req, res, ctx) => {
-    return res(ctx.status(200), ctx.json(allCards));
+    return res(ctx.status(200), ctx.json(allData));
   })
 
   // 카드 추가
@@ -24,7 +15,7 @@ export const handlers = [
   // 카드 이동
 ];
 
-const allCards = [
+const allData = [
   {
     "categoryId": 1,
     "categoryName": "todo",
