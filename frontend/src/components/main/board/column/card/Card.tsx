@@ -45,7 +45,7 @@ const Card = styled(({ className, title, content, onDelete }: { className?: stri
             <input type="text" name="title" defaultValue={title} />
           </fieldset>
           <fieldset>
-            <input type="text" name="body" defaultValue={content} />
+            <textarea name="body" defaultValue={content}></textarea>
           </fieldset>
           <menu className="edit-menu">
             <li className="cancel">
@@ -110,7 +110,7 @@ const Card = styled(({ className, title, content, onDelete }: { className?: stri
           color: ${color.text.strong};
           margin-bottom: 7px;
         }
-        input[name="body"] {
+        textarea[name="body"] {
           font: ${font.display.medium14};
           color: ${color.text.default};
           margin-bottom: 6px;

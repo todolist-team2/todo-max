@@ -1,6 +1,8 @@
-import { useState } from "react";
+import { ChangeEvent, useRef, useState } from "react";
 import { styled } from "styled-components";
 import TTheme from "../../../../../types/TTheme";
+
+const LIMIT_TEXT_LENGTH = 500;
 
 function CardForm({
   variant = "default",
@@ -15,6 +17,19 @@ function CardForm({
 }) {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const contentAreaRef = useRef<HTMLTextAreaElement>(null);
+
+  const resizeContentArea = () => {
+    if (contentAreaRef.current) {
+      contentAreaRef.current.style.height = "auto";
+      contentAreaRef.current.style.height = `${contentAreaRef.current.scrollHeight}px`;
+    }
+  };
+
+  const changeContent = (e: ChangeEvent<HTMLTextAreaElement>) => {
+    setContent(e.target.value);
+    resizeContentArea();
+  };
 
   const isSubmitBtnClickable = title.length !== 0 && content.length !== 0;
 
@@ -30,8 +45,10 @@ function CardForm({
           maxLength={500}
           value={content}
           placeholder="내용을 입력하세요"
-          onChange={(e) => setContent(e.target.value)}
+          ref={contentAreaRef}
+          onChange={changeContent}
         ></textarea>
+        <p className="text-counter">{content.length} / {LIMIT_TEXT_LENGTH}</p>
       </div>
       <ul className="buttons">
         <li>
@@ -84,6 +101,12 @@ const StyledCard = styled.article<{ theme: TTheme; variant: "default" | "drag" |
     &:focus {
       outline: 2px solid ${(props) => props.theme.color.grayscale[300]};
     }
+  }
+
+  .text-counter {
+    font: ${(props) => props.theme.font.display.medium12};
+    color: ${(props) => props.theme.color.text.weak};
+    text-align: right;
   }
 
   .buttons {
