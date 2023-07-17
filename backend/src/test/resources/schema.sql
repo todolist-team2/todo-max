@@ -39,8 +39,8 @@ CREATE TABLE action
     id                   BIGINT      NOT NULL AUTO_INCREMENT,
     action_name          VARCHAR(64) NOT NULL,
     card_name            VARCHAR(64) NOT NULL,
-    origin_category_name VARCHAR(64) NOT NULL,
-    target_category_name VARCHAR(64) NOT NULL,
+    origin_category_name VARCHAR(64),
+    target_category_name VARCHAR(64),
     created_at           TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP(0),
     user_id              BIGINT      NOT NULL,
     PRIMARY KEY (`id`)
