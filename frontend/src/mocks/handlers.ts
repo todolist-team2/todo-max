@@ -24,23 +24,40 @@ export const handlers = [
       return res(ctx.status(400), ctx.json({ error: "title or content is required" }));
     }
 
-    const newCardId = generateUniqueId();
     const newCard = {
       id: generateUniqueId(),
       title,
       content,
       nickname: "unknown",
-    }
+    };
 
-    category.cards = [
-      newCard,
-      ...category.cards,
-    ];
-    
+    category.cards = [newCard, ...category.cards];
+
     return res(ctx.status(200), ctx.json(newCard));
   }),
 
   // 카드 삭제
+  rest.delete("/api/cards/:cardId", async (req, res, ctx) => {
+    const { cardId } = req.params;
+    if (!cardId) {
+      return res(ctx.status(400), ctx.json({ error: "cardId is required" }));
+    }
+
+    if (typeof cardId !== "string") {
+      return res(ctx.status(400), ctx.json({ error: "cardId is invalid" }));
+    }
+
+    const numberCardId = parseInt(cardId);
+    const category = allData.find((category) => category.cards.some((card) => card.id === numberCardId));
+
+    if (!category) {
+      return res(ctx.status(400), ctx.json({ error: "cardId is invalid" }));
+    }
+
+    category.cards = category.cards.filter((card) => card.id!== numberCardId);
+
+    return res(ctx.status(200), ctx.json({}));
+  }),
 
   // 카드 수정
 
