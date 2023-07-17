@@ -13,7 +13,7 @@ function CardForm({
   variant?: "default" | "drag" | "place";
   mode: "add" | "edit";
   handleCancelButtonClick: () => void;
-  handleSubmitButtonClick: () => void;
+  handleSubmitButtonClick: ({ title, content }: { title: string; content: string }) => Promise<void>;
 }) {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
@@ -48,14 +48,23 @@ function CardForm({
           ref={contentAreaRef}
           onChange={changeContent}
         ></textarea>
-        <p className="text-counter">{content.length} / {LIMIT_TEXT_LENGTH}</p>
+        <p className="text-counter">
+          {content.length} / {LIMIT_TEXT_LENGTH}
+        </p>
       </div>
       <ul className="buttons">
         <li>
           <button onClick={handleCancelButtonClick}>취소</button>
         </li>
         <li>
-          <button disabled={!isSubmitBtnClickable}>{mode === "add" ? "등록" : "저장"}</button>
+          <button
+            onClick={() => {
+              handleSubmitButtonClick({ title, content });
+            }}
+            disabled={!isSubmitBtnClickable}
+          >
+            {mode === "add" ? "등록" : "저장"}
+          </button>
         </li>
       </ul>
     </StyledCard>
