@@ -4,11 +4,11 @@ import kr.codesquad.todo.domain.Category;
 
 import javax.validation.constraints.NotBlank;
 
-public class CategoryRequestDto {
+public class CategoryRequest {
 	@NotBlank(message = "카테고리 이름을 입력해주세요.")
 	private String name;
 
-	public CategoryRequestDto(String name) {
+	public CategoryRequest(String name) {
 		this.name = name;
 	}
 

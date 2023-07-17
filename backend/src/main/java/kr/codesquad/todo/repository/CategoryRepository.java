@@ -19,7 +19,6 @@ public class CategoryRepository {
 	private final SimpleJdbcInsert simpleJdbcInsert;
 	private final DataSource dataSource;
 
-
 	public CategoryRepository(NamedParameterJdbcTemplate jdbcTemplate, DataSource dataSource) {
 		this.jdbcTemplate = jdbcTemplate;
 		this.simpleJdbcInsert = new SimpleJdbcInsert(dataSource)
@@ -29,12 +28,10 @@ public class CategoryRepository {
 		this.dataSource = dataSource;
 	}
 
-
 	public Boolean existById(Long categoryId) {
 		String existById = "SELECT EXISTS (SELECT id FROM category WHERE id = :id)";
 		return jdbcTemplate.queryForObject(existById, Map.of("id", categoryId), Boolean.class);
 	}
-
 
 	// 카테고리 추가
 	public Long save(Category category) {
