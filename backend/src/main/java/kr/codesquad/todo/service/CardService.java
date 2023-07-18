@@ -32,18 +32,14 @@ public class CardService {
 
 	@Transactional
 	public Long register(Long categoryId, CardCreationRequest cardCreationRequest) {
-		if (!categoryRepository.existById(categoryId)) {
-			throw new BusinessException(ErrorCode.CATEGORY_NOT_FOUND);
-		}
+		String categoryName = categoryRepository.findNameById(categoryId)
+			.orElseThrow(() -> new BusinessException(ErrorCode.CATEGORY_NOT_FOUND));
 
 		Long headId = cardRepository.findHeadIdByCategoryId(categoryId).orElse(0L);
 		Long id = cardRepository.save(cardCreationRequest.toEntity(categoryId));
 		if (headId != 0L) {
 			cardRepository.updateById(headId, id);
 		}
-
-		String categoryName = categoryRepository.findNameById(categoryId)
-			.orElseThrow(() -> new BusinessException(ErrorCode.CATEGORY_NOT_FOUND));
 
 		registerAction(ActionType.REGISTER, new ActionData(cardCreationRequest.getTitle(), categoryName, null));
 		return id;
