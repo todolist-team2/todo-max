@@ -1,6 +1,7 @@
 import { ChangeEvent, useRef, useState } from "react";
 import { styled } from "styled-components";
 import TTheme from "../../../../../types/TTheme";
+import Buttons from "../../../../common/Buttons";
 
 const LIMIT_TEXT_LENGTH = 500;
 
@@ -59,18 +60,20 @@ function CardForm<T extends "edit" | "add">({
         </p>
       </div>
       <ul className="buttons">
-        <li>
-          <button onClick={handleCancelButtonClick}>취소</button>
+        <li className="cancel">
+          <Buttons $Flexible="" $Type="Contained" $ElementPattern="Text Only" $States="Enable" text="취소" onClick={handleCancelButtonClick} />
         </li>
-        <li>
-          <button
+        <li className="submit">
+          <Buttons
+            $Flexible=""
+            $Type="Contained"
+            $ElementPattern="Text Only"
+            $States="Enable"
+            text={mode === "add" ? "등록" : "저장"}
             onClick={() => {
               handleSubmitButtonClick({ title, content }, originalContent.id);
             }}
-            disabled={!isSubmitBtnClickable}
-          >
-            {mode === "add" ? "등록" : "저장"}
-          </button>
+          />
         </li>
       </ul>
     </StyledCard>
@@ -82,7 +85,7 @@ const StyledCard = styled.article<{ theme: TTheme; $variant: "default" | "drag" 
   padding: 16px;
   border-radius: 8px;
   background-color: ${(props) => props.theme.color.surface.default};
-  box-shadow: ${(props) => (props.variant === "drag" ? props.theme.boxShadow.floating : props.theme.boxShadow.normal)};
+  box-shadow: ${(props) => (props.$variant === "drag" ? props.theme.boxShadow.floating : props.theme.boxShadow.normal)};
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -128,6 +131,24 @@ const StyledCard = styled.article<{ theme: TTheme; $variant: "default" | "drag" 
     width: 100%;
     display: flex;
     gap: 8px;
+
+    li {
+      width: 100%;
+    }
+
+    button {
+      width: 100%;
+    }
+
+    .cancel button {
+      color: ${(props) => props.theme.color.text.default};
+      background-color: ${props => props.theme.color.surface.alt};
+    }
+
+    .submit button {
+      color: ${(props) => props.theme.color.text.white.default};
+      background-color: ${props => props.theme.color.surface.brand};
+    }
   }
 `;
 

@@ -1,6 +1,6 @@
 type TAlertState = {
   message: string;
-  action: () => void;
-}
+  action: () => Promise<void>;
+};
 
 export default TAlertState;

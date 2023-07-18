@@ -2,19 +2,22 @@ import { styled } from "styled-components";
 import TTheme from "../../../../types/TTheme";
 import Buttons from "../../../common/Buttons";
 
-const ColumnControl = styled(({ className }: { className?: string }) => {
+const ColumnControl = styled(({ className, handlePlusButtonClick }: { className?: string; handlePlusButtonClick: () => void }) => {
   return (
     <ul className={className}>
-      {["Plus", "Close"].map((IconName, index) => {
+      {[
+        { name: "Plus", handleClickAction: handlePlusButtonClick },
+        { name: "Close", handleClickAction: () => console.log("칼럼 삭제") },
+      ].map(({ name, handleClickAction }, index) => {
         return (
           <li key={index}>
-            <Buttons
+            <Buttons  
               $Flexible=""
               $Type="Ghost"
               $ElementPattern="Icon Only"
               $States="Enable"
-              icon={IconName}
-              onClick={() => console.log("컬럼버튼")}
+              icon={name}
+              onClick={handleClickAction}
             />
           </li>
         );

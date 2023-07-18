@@ -11,7 +11,7 @@ export const useAlert = (function () {
     register: (set: React.Dispatch<React.SetStateAction<TAlertState | null>>) => {
       state.set = set;
     },
-    use: (message: string, action: () => void) => {
+    use: (message: string, action: () => Promise<void>) => {
       if (!state.set) {
         return;
       }

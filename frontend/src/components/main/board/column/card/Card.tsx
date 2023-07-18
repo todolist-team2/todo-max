@@ -4,70 +4,74 @@ import { useAlert } from "../../../../../hooks/useAlert";
 import TTheme from "../../../../../types/TTheme";
 import Buttons from "../../../../common/Buttons";
 
-const Card = styled(({ className, title, content, onDelete }: { className?: string; title: string; content: string; onDelete: () => void }) => {
-  const [mode, setMode] = useState<"default" | "Add/Edit" | "Drag" | "Place">("default");
+type TMode = "Default" | "Add/Edit" | "Drag" | "Place";
 
-  function editFormSubmitHandler(event: FormEvent<HTMLFormElement>): void {
-    event.preventDefault();
-    console.log(event.target);
-  }
+const Card = styled(
+  ({ className, title, content, onDelete }: { className?: string; title: string; content: string; onDelete: () => Promise<void> }) => {
+    const [mode, setMode] = useState<TMode>("Default");
 
-  return (
-    <article className={className} data-mode={mode}>
-      <h4 className="blind">카드</h4>
-      {mode !== "Add/Edit" && (
-        <div className="container">
-          <div className="inner">
-            <h4>{title}</h4>
-            <pre>{content}</pre>
-            <p>author by web</p>
+    function editFormSubmitHandler(event: FormEvent<HTMLFormElement>): void {
+      event.preventDefault();
+      console.log(event.target);
+    }
+
+    return (
+      <article className={className} data-mode={mode}>
+        <h4 className="blind">카드</h4>
+        {mode !== "Add/Edit" && (
+          <div className="container">
+            <div className="inner">
+              <h4>{title}</h4>
+              <pre>{content}</pre>
+              <p>author by web</p>
+            </div>
+            <menu className="control">
+              <li>
+                <Buttons
+                  $Flexible=""
+                  $Type="Ghost"
+                  $ElementPattern="Icon Only"
+                  $States="Enable"
+                  icon="Close"
+                  onClick={() => useAlert.use("선택한 카드를 삭제할까요?", onDelete)}
+                />
+              </li>
+              <li>
+                <Buttons $Flexible="" $Type="Ghost" $ElementPattern="Icon Only" $States="Enable" icon="Edit" onClick={() => setMode("Add/Edit")} />
+              </li>
+            </menu>
           </div>
-          <menu className="control">
-            <li>
-              <Buttons
-                $Flexible=""
-                $Type="Ghost"
-                $ElementPattern="Icon Only"
-                $States="Enable"
-                icon="Close"
-                onClick={() => useAlert.use("선택한 카드를 삭제할까요?", onDelete)}
-              />
-            </li>
-            <li>
-              <Buttons $Flexible="" $Type="Ghost" $ElementPattern="Icon Only" $States="Enable" icon="Edit" onClick={() => setMode("Add/Edit")} />
-            </li>
-          </menu>
-        </div>
-      )}
-      {mode === "Add/Edit" && (
-        <form onSubmit={editFormSubmitHandler}>
-          <fieldset>
-            <input type="text" name="title" defaultValue={title} />
-          </fieldset>
-          <fieldset>
-            <textarea name="body" defaultValue={content}></textarea>
-          </fieldset>
-          <menu className="edit-menu">
-            <li className="cancel">
-              <Buttons
-                $Flexible=""
-                $Type="Contained"
-                $ElementPattern="Text Only"
-                $States="Enable"
-                text="취소"
-                type="button"
-                onClick={() => setMode("default")}
-              />
-            </li>
-            <li className="register">
-              <Buttons $Flexible="" $Type="Contained" $ElementPattern="Text Only" $States="Enable" text="저장" type="submit" />
-            </li>
-          </menu>
-        </form>
-      )}
-    </article>
-  );
-})<{ theme: TTheme }>`
+        )}
+        {mode === "Add/Edit" && (
+          <form onSubmit={editFormSubmitHandler}>
+            <fieldset>
+              <input type="text" name="title" defaultValue={title} />
+            </fieldset>
+            <fieldset>
+              <textarea name="body" defaultValue={content}></textarea>
+            </fieldset>
+            <menu className="edit-menu">
+              <li className="cancel">
+                <Buttons
+                  $Flexible=""
+                  $Type="Contained"
+                  $ElementPattern="Text Only"
+                  $States="Enable"
+                  text="취소"
+                  type="button"
+                  onClick={() => setMode("Default")}
+                />
+              </li>
+              <li className="register">
+                <Buttons $Flexible="" $Type="Contained" $ElementPattern="Text Only" $States="Enable" text="저장" type="submit" />
+              </li>
+            </menu>
+          </form>
+        )}
+      </article>
+    );
+  }
+)<{ theme: TTheme }>`
   ${({ theme }) => {
     const { color, font } = theme;
     return css`

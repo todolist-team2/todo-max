@@ -3,14 +3,14 @@ import TTheme from "../../../../types/TTheme";
 import { Badge } from "../../../common/Badge";
 import ColumnControl from "./ColumnControl";
 
-const ColumnTitle = styled(({ className, title, count }: { className?: string; title: string; count: number }) => {
+const ColumnTitle = styled(({ className, title, count, handlePlusButtonClick }: { className?: string; title: string; count: number, handlePlusButtonClick: () => void }) => {
   return (
     <h3 className={className}>
       <span className="text-aria">
         <span className="title">{title}</span>
         <Badge $2DigitPlus={count > 99} digit={count} />
       </span>
-      <ColumnControl />
+      <ColumnControl handlePlusButtonClick={handlePlusButtonClick} />
     </h3>
   );
 })<{ theme: TTheme }>`

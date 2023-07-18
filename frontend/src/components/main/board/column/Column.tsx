@@ -2,6 +2,7 @@ import { useState } from "react";
 import { styled } from "styled-components";
 import TCard from "../../../../types/TCard";
 import TTheme from "../../../../types/TTheme";
+import fetchData from "../../../../utils/fetch";
 import ColumnTitle from "./ColumnTitle";
 import Card from "./card/Card";
 import CardForm from "./card/CardForm";
@@ -12,17 +13,18 @@ const Column = styled(
     categoryId,
     categoryName,
     cards,
-    deleteCard,
+    onCardChanged,
   }: {
     className?: string;
     categoryId: number;
     categoryName: string;
     cards: TCard[];
-    deleteCard: (card: TCard) => void;
+    onCardChanged: () => Promise<void>;
   }) => {
     const [isAddFormOpen, setIsAddFormOpen] = useState(false);
+    const [cardIdUnderEdit, setCardIdUnderEdit] = useState(0);
 
-    const openAddForm = () => {
+    const toggleAddForm = () => {
       setIsAddFormOpen((i) => !i);
     };
 
@@ -31,61 +33,72 @@ const Column = styled(
     };
 
     const addCard = async ({ title, content }: { title: string; content: string }) => {
-      const res = await fetch("/api/cards?" + new URLSearchParams({ categoryId: categoryId.toString() }).toString(), {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      await fetchData(
+        `/api/cards?categoryId=${categoryId}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ title, content }),
         },
-        body: JSON.stringify({
-          title,
-          content,
-        }),
-      });
-      const result = await res.json();
-      closeAddForm();
-      // TODO: 카드 목록 불러오기
+        () => {
+          closeAddForm();
+          onCardChanged();
+        }
+      );
     };
-  
-    const removeCard = async (cardId: number) => {
-      const res = await fetch("/api/cards/" + cardId.toString(), {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
+
+    const deleteCard = async (cardId: number) => {
+      await fetchData(
+        `/api/cards/${cardId}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
         },
-      });
-      const result = await res.json();
-      // TODO: 카드 목록 불러오기
+        () => {
+          onCardChanged();
+        }
+      );
     };
 
     const editCard = async ({ title, content }: { title: string; content: string }, cardId: number) => {
-      console.log(cardId);
-      const res = await fetch("/api/cards/" + cardId.toString(), {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
+      await fetchData(
+        `/api/cards/${cardId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            title,
+            content,
+          }),
         },
-        body: JSON.stringify({
-          title,
-          content,
-        }),
-      });
-      const result = await res.json();
-      // TODO: 수정 중인 카드 id 변경
-      // TODO: 카드 목록 불러오기
+        () => {
+          onCardChanged();
+        }
+      );
     };
 
     return (
       <article className={className}>
-        <ColumnTitle title={categoryName} count={cards.length} />
+        <ColumnTitle title={categoryName} count={cards.length} handlePlusButtonClick={toggleAddForm} />
         <ul className="card-list">
           {isAddFormOpen && (
             <li>
-              <CardForm mode="add" handleCancelButtonClick={closeAddForm} handleSubmitButtonClick={() => console.log("d")} />
+              <CardForm mode="add" handleCancelButtonClick={closeAddForm} handleSubmitButtonClick={addCard} />
             </li>
           )}
-          {cards.map((card, index) => (
-            <li key={index}>
-              <Card {...card} onDelete={() => deleteCard(card)} />
+          {cards.map((card) => (
+            <li key={card.id}>
+              {cardIdUnderEdit === card.id ? (
+                <CardForm mode="edit" originalContent={card} handleCancelButtonClick={closeAddForm} handleSubmitButtonClick={editCard} />
+              ) : (
+                <Card {...card} onDelete={() => deleteCard(card.id)} />
+              )}
             </li>
           ))}
         </ul>

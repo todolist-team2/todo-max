@@ -1,66 +1,36 @@
+import { useEffect, useState } from "react";
 import { styled } from "styled-components";
-import Column from "./column/Column";
-import { useState, useEffect } from "react";
-import TCard from "../../../types/TCard";
 import TColumn from "../../../types/TColumn";
 import TTheme from "../../../types/TTheme";
+import fetchData from "../../../utils/fetch";
+import Column from "./column/Column";
 
 const Board = styled(({ className }: { className?: string }) => {
   const [columns, setColumns] = useState<TColumn[]>([]);
 
   useEffect(() => {
-    (async function fetchAllData() {
-      const res = await fetch("/api/cards", {
+    updateColumns();
+  }, []);
+
+  const updateColumns = async () => {
+    await fetchData<TColumn[]>(
+      "/api/cards",
+      {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
         },
-      });
-
-      const result = await res.json();
-      setColumns(result);
-    })();
-  }, []);
-
-  function deleteCardFromColumn(columnIndex: number) {
-    return (card: TCard) => {
-      setColumns((columns) => {
-        const newColumns = [...columns];
-        const cards = newColumns[columnIndex].cards;
-        newColumns[columnIndex].cards = cards.filter((_card) => _card !== card);
-        return newColumns;
-      });
-    };
-  }
-
-  const fetchUpdatedColumn = async (categoryId: number) => {
-    const updatedColumn = await fetchColumn(categoryId);
-
-    setColumns((columns) => {
-      return columns.map((column) => {
-        return column.categoryId === categoryId? updatedColumn : column;
-      });
-    });
-  };
-
-  const fetchColumn = async (categoryId: number) => {
-    const res = await fetch("/api/cards?" + new URLSearchParams({ categoryId: categoryId.toString() }).toString(), {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
       },
-    });
-    const result: TColumn = await res.json();
-    return result;
+      setColumns
+    );
   };
 
   return (
     <ul className={className}>
-      {columns.map((column, index) => {
-        const deleteCard = deleteCardFromColumn(index);
+      {columns.map((column) => {
         return (
-          <li key={index}>
-            <Column {...{ ...column, deleteCard }} />
+          <li key={column.categoryId}>
+            <Column {...{ ...column, onCardChanged: updateColumns }} />
           </li>
         );
       })}

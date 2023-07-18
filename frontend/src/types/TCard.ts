@@ -1,6 +1,8 @@
 type TCard = {
+  id: number;
   title: string;
-  text: string;
+  content: string;
+  nickname: string;
 };
 
 export default TCard;
