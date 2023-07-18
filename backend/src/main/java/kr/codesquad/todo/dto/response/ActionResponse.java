@@ -1,10 +1,12 @@
 package kr.codesquad.todo.dto.response;
 
-import kr.codesquad.todo.domain.Action;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+import kr.codesquad.todo.domain.Action;
 
 public class ActionResponse {
 
@@ -16,14 +18,15 @@ public class ActionResponse {
 	private String targetCategoryName;
 	private LocalDateTime createdAt;
 
-	public ActionResponse(String nickname, String imageUrl, Action action) {
+	public ActionResponse(String nickname, String actionName, String cardName, String originCategoryName,
+		String targetCategoryName, LocalDateTime createdAt) {
 		this.nickname = nickname;
-		this.imageUrl = imageUrl;
-		this.actionName = action.getActionName();
-		this.cardName = action.getCardName();
-		this.originCategoryName = action.getOriginCategoryName();
-		this.targetCategoryName = action.getTargetCategoryName();
-		this.createdAt = action.getCreatedAt();
+		this.imageUrl = "";
+		this.actionName = actionName;
+		this.cardName = cardName;
+		this.originCategoryName = originCategoryName;
+		this.targetCategoryName = targetCategoryName;
+		this.createdAt = createdAt;
 	}
 
 	public String getNickname() {
@@ -42,10 +45,12 @@ public class ActionResponse {
 		return cardName;
 	}
 
+	@JsonInclude(JsonInclude.Include.NON_NULL)
 	public String getOriginCategoryName() {
 		return originCategoryName;
 	}
 
+	@JsonInclude(JsonInclude.Include.NON_NULL)
 	public String getTargetCategoryName() {
 		return targetCategoryName;
 	}
@@ -58,9 +63,18 @@ public class ActionResponse {
 		List<ActionResponse> actionResponseList = new ArrayList<>();
 
 		actionList.getContent().forEach(action -> {
-			actionResponseList.add(new ActionResponse(nickname, imageUrl, action));
+			actionResponseList.add(new ActionResponse(nickname,
+				action.getActionName(),
+				action.getCardName(),
+				action.getOriginCategoryName(),
+				action.getTargetCategoryName(),
+				action.getCreatedAt()));
 		});
 
 		return new Slice<>(actionResponseList, actionList.getHasNext());
+	}
+
+	public Action toEntity() {
+		return new Action(null, actionName, cardName, originCategoryName, targetCategoryName, createdAt, 1L);
 	}
 }
