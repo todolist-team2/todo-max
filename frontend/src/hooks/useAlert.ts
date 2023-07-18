@@ -1,4 +1,4 @@
-import { TAlertState } from "../types/TAlertState";
+import TAlertState from "../types/TAlertState";
 
 export const useAlert = (function () {
   const state: {
@@ -8,9 +8,7 @@ export const useAlert = (function () {
   };
 
   return {
-    register: (
-      set: React.Dispatch<React.SetStateAction<TAlertState | null>>
-    ) => {
+    register: (set: React.Dispatch<React.SetStateAction<TAlertState | null>>) => {
       state.set = set;
     },
     use: (message: string, action: () => void) => {

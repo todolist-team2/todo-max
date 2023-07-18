@@ -4,6 +4,11 @@ import App from "./App.tsx";
 import { ThemeProvider } from "styled-components";
 import { theme } from "./theme.ts";
 import CommonStyle from "./styles/CommonStyle.tsx";
+import serviceWorker from "./mocks/serviceWorker";
+
+if (process.env.NODE_ENV === "development") {
+  serviceWorker.start();
+}
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>

@@ -1,5 +1,5 @@
 import { createGlobalStyle } from "styled-components";
-import { TTheme } from "../types/TTheme";
+import TTheme from "../types/TTheme";
 
 const CommonStyle = createGlobalStyle<{ theme: TTheme }>`
   body {

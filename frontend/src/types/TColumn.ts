@@ -1,7 +1,8 @@
 import TCard from "./TCard";
 
 type TColumn = {
-  name: string;
+  categoryId: number;
+  categoryName: string;
   cards: TCard[];
 };
 

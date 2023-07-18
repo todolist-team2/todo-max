@@ -1,9 +1,9 @@
-import { css, styled } from "styled-components";
-import { TTheme } from "../../types/TTheme";
-import Dim from "../../styles/Dim";
 import { useEffect, useState } from "react";
+import { css, styled } from "styled-components";
 import { useAlert } from "../../hooks/useAlert";
-import { TAlertState } from "../../types/TAlertState";
+import Dim from "../../styles/Dim";
+import TAlertState from "../../types/TAlertState";
+import TTheme from "../../types/TTheme";
 import Buttons from "./Buttons";
 
 const Alert = styled(({ className }: { className?: string }) => {
@@ -25,32 +25,15 @@ const Alert = styled(({ className }: { className?: string }) => {
   return (
     <>
       {alertState && <Dim />}
-      <dialog
-        className={className}
-        open={alertState !== null}
-        onClose={closeHandler}>
+      <dialog className={className} open={alertState !== null} onClose={closeHandler}>
         <p>{alertState?.message}</p>
         <form method="dialog">
           <menu>
             <li className="cancel">
-              <Buttons
-                $Flexible=""
-                $Type="Contained"
-                $ElementPattern="Text Only"
-                $States="Enable"
-                text="취소"
-                value="cancel"
-              />
+              <Buttons $Flexible="" $Type="Contained" $ElementPattern="Text Only" $States="Enable" text="취소" value="cancel" />
             </li>
             <li className="ok">
-              <Buttons
-                $Flexible=""
-                $Type="Contained"
-                $ElementPattern="Text Only"
-                $States="Enable"
-                text="삭제"
-                value="ok"
-              />
+              <Buttons $Flexible="" $Type="Contained" $ElementPattern="Text Only" $States="Enable" text="삭제" value="ok" />
             </li>
           </menu>
         </form>
