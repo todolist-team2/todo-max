@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { styled } from "styled-components";
 import TCard from "../../../../types/TCard";
 import TTheme from "../../../../types/TTheme";
@@ -13,25 +12,22 @@ const Column = styled(
     categoryId,
     categoryName,
     cards,
+    activeCardFormIdentifier,
+    toggleAddForm,
+    openEditForm,
+    closeCardForm,
     onCardChanged,
   }: {
     className?: string;
     categoryId: number;
     categoryName: string;
     cards: TCard[];
+    activeCardFormIdentifier: { cardId: number; categoryId: number };
+    toggleAddForm: (categoryId: number) => void;
+    openEditForm: (cardId: number, categoryId: number) => void;
+    closeCardForm: () => void;
     onCardChanged: () => Promise<void>;
   }) => {
-    const [isAddFormOpen, setIsAddFormOpen] = useState(false);
-    const [cardIdUnderEdit, setCardIdUnderEdit] = useState(0);
-
-    const toggleAddForm = () => {
-      setIsAddFormOpen((i) => !i);
-    };
-
-    const closeAddForm = () => {
-      setIsAddFormOpen(false);
-    };
-
     const addCard = async ({ title, content }: { title: string; content: string }) => {
       await fetchData(
         `/api/cards?categoryId=${categoryId}`,
@@ -43,7 +39,7 @@ const Column = styled(
           body: JSON.stringify({ title, content }),
         },
         () => {
-          closeAddForm();
+          closeCardForm();
           onCardChanged();
         }
       );
@@ -78,26 +74,33 @@ const Column = styled(
           }),
         },
         () => {
+          closeCardForm();
           onCardChanged();
         }
       );
     };
 
+    const isActiveAddForm = activeCardFormIdentifier.cardId === 0 && activeCardFormIdentifier.categoryId === categoryId;
+
+    const isActiveEditForm = (cardId: number) => {
+      return cardId === activeCardFormIdentifier.cardId && categoryId === activeCardFormIdentifier.categoryId;
+    };
+
     return (
       <article className={className}>
-        <ColumnTitle title={categoryName} count={cards.length} handlePlusButtonClick={toggleAddForm} />
+        <ColumnTitle title={categoryName} count={cards.length} handlePlusButtonClick={() => toggleAddForm(categoryId)} />
         <ul className="card-list">
-          {isAddFormOpen && (
+          {isActiveAddForm && (
             <li>
-              <CardForm mode="add" handleCancelButtonClick={closeAddForm} handleSubmitButtonClick={addCard} />
+              <CardForm mode="add" handleCancelButtonClick={closeCardForm} handleSubmitButtonClick={addCard} />
             </li>
           )}
           {cards.map((card) => (
             <li key={card.id}>
-              {cardIdUnderEdit === card.id ? (
-                <CardForm mode="edit" originalContent={card} handleCancelButtonClick={closeAddForm} handleSubmitButtonClick={editCard} />
+              {isActiveEditForm(card.id) ? (
+                <CardForm mode="edit" originalContent={card} handleCancelButtonClick={closeCardForm} handleSubmitButtonClick={editCard} />
               ) : (
-                <Card {...card} onDelete={() => deleteCard(card.id)} />
+                <Card {...card} onDelete={() => deleteCard(card.id)} onEdit={() => openEditForm(card.id, categoryId)} />
               )}
             </li>
           ))}

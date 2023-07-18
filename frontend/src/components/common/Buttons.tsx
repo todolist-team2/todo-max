@@ -10,6 +10,7 @@ const Buttons = styled(
     value,
     type,
     onClick,
+    disabled
   }: {
     className?: string;
     icon?: string;
@@ -17,6 +18,7 @@ const Buttons = styled(
     value?: string;
     type?: "button" | "reset" | "submit";
     onClick?: () => void;
+    disabled?: boolean;
   }) => {
     return (
       <button
@@ -25,6 +27,7 @@ const Buttons = styled(
           value: value ? value : undefined,
           onClick: onClick ? () => onClick() : undefined,
           type: type ? type : undefined,
+          disabled
         }}
       >
         <span className="container">
@@ -51,6 +54,10 @@ const Buttons = styled(
   }
   svg {
     display: block;
+  }
+  &:hover {
+    cursor: pointer;
+    opacity: .8;
   }
 
   ${({ theme, $Flexible, $Type, $ElementPattern, $States }) => {
