@@ -1,12 +1,11 @@
 // theme.ts
 
-
 export type TTheme = {
   font: {
     bold: {
       L: string;
       M: string;
-      R: string; 
+      R: string;
       S: string;
     };
     medium: {
@@ -62,5 +61,18 @@ export type TTheme = {
     border: {
       default: string;
     };
+  };
+
+  border: {
+    radius: {
+      round8: string;
+      round16: string;
+      circle: string;
+    };
+  };
+  boxShadow: {
+    normal: string;
+    up: string;
+    floating: string;
   };
 };

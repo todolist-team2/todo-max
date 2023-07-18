@@ -1,3 +1,4 @@
+import React from "react";
 import { UserActionLog } from "./UserActionLog";
 
 const logDummy = [
@@ -13,7 +14,7 @@ const logDummy = [
   },
 ];
 
-function UserActionLogList() {
+export const UserActionLogList: React.FC = () => {
   return (
     <article>
       <h3>사용자 활동기록 목록</h3>
@@ -26,6 +27,4 @@ function UserActionLogList() {
       </ul>
     </article>
   );
-}
-
-export default UserActionLogList;
+};
