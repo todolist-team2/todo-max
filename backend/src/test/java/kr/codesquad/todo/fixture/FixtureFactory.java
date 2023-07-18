@@ -12,6 +12,10 @@ public class FixtureFactory {
 		return new CardCreationRequest("Github 공부하기", "열심히 해야지~");
 	}
 
+	public static CardCreationRequest updateCardCreationRequest() {
+		return new CardCreationRequest("수정된 제목", "수정된 내용");
+	}
+
 	public static CategoryRequest createCategoryRequest() {
 		return new CategoryRequest("1일 1커밋 도전!");
 	}
