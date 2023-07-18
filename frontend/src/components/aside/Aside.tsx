@@ -1,5 +1,5 @@
 import { styled } from "styled-components";
-import { UserActionLogList } from "./UserActionLogList";
+import { UserActionLogList } from "./actionHistory/UserActionLogList";
 
 const Aside = styled(({ className }: { className?: string }) => {
   return (

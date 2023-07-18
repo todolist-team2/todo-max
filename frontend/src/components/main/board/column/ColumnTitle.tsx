@@ -1,7 +1,7 @@
 import { css, styled } from "styled-components";
-import { TTheme } from "../types/TTheme";
 import ColumnControl from "./ColumnControl";
-import { Badge } from "./Badge";
+import { Badge } from "../../../common/Badge";
+import { TTheme } from "../../../../types/TTheme";
 
 const ColumnTitle = styled(
   ({

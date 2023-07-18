@@ -1,9 +1,9 @@
 import { styled } from "styled-components";
-import TCard from "../types/TCard";
-import { TTheme } from "../types/TTheme";
 
-import Card from "./Card";
+import Card from "./card/Card";
 import ColumnTitle from "./ColumnTitle";
+import TCard from "../../../../types/TCard";
+import { TTheme } from "../../../../types/TTheme";
 
 const Column = styled(
   ({

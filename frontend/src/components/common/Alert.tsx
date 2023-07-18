@@ -1,9 +1,9 @@
 import { css, styled } from "styled-components";
-import { TTheme } from "../types/TTheme";
-import Dim from "../styles/Dim";
+import { TTheme } from "../../types/TTheme";
+import Dim from "../../styles/Dim";
 import { useEffect, useState } from "react";
-import { useAlert } from "../hooks/useAlert";
-import { TAlertState } from "../types/TAlertState";
+import { useAlert } from "../../hooks/useAlert";
+import { TAlertState } from "../../types/TAlertState";
 import Buttons from "./Buttons";
 
 const Alert = styled(({ className }: { className?: string }) => {

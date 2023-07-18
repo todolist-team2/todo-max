@@ -1,9 +1,9 @@
 import { styled } from "styled-components";
-import { TTheme } from "../types/TTheme";
-import Column from "./Column";
-import TColumn from "../types/TColumn";
-import TCard from "../types/TCard";
+import Column from "./column/Column";
 import { useState } from "react";
+import TCard from "../../../types/TCard";
+import TColumn from "../../../types/TColumn";
+import { TTheme } from "../../../types/TTheme";
 
 const Board = styled(({ className }: { className?: string }) => {
   const [columns, setColumns] = useState<TColumn[]>(dummy);

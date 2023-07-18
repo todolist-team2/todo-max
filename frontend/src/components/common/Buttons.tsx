@@ -1,6 +1,6 @@
 import { styled } from "styled-components";
 import { IconRouter } from "./Icon";
-import { TTheme } from "../types/TTheme";
+import { TTheme } from "../../types/TTheme";
 
 const Buttons = styled(
   ({

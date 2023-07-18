@@ -1,8 +1,8 @@
 import { css, styled } from "styled-components";
-import { TTheme } from "../types/TTheme";
-import { useAlert } from "../hooks/useAlert";
-import Buttons from "./Buttons";
 import { FormEvent, useState } from "react";
+import Buttons from "../../../../common/Buttons";
+import { useAlert } from "../../../../../hooks/useAlert";
+import { TTheme } from "../../../../../types/TTheme";
 
 const Card = styled(
   ({

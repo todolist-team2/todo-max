@@ -1,9 +1,9 @@
 import { useState } from "react";
 import Header from "./components/Header";
-import Main from "./components/Main";
-import Alert from "./components/Alert";
+import Main from "./components/main/Main";
+import Alert from "./components/common/Alert";
 import Container from "./styles/Container";
-import Aside from "./components/Aside";
+import Aside from "./components/aside/Aside";
 
 const App: React.FC = () => {
   const [isHistoryOpen, setIsHistoryOpen] = useState<boolean>(false);

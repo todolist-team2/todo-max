@@ -1,5 +1,5 @@
 import { css, styled } from "styled-components";
-import { TTheme } from "../types/TTheme";
+import { TTheme } from "../../types/TTheme";
 
 export const Badge = styled(
   ({ className, digit }: { className?: string; digit: number }) => {

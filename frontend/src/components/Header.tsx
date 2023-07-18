@@ -1,6 +1,6 @@
 import styled, { css } from "styled-components";
 import { TTheme } from "../types/TTheme";
-import Buttons from "./Buttons";
+import Buttons from "./common/Buttons";
 
 const Header = styled(({ className }: { className?: string }) => {
   return (
