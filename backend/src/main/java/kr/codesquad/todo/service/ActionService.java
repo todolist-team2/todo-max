@@ -1,12 +1,14 @@
 package kr.codesquad.todo.service;
 
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import kr.codesquad.todo.domain.Action;
+import kr.codesquad.todo.domain.ActionType;
+import kr.codesquad.todo.dto.ActionData;
 import kr.codesquad.todo.dto.response.ActionResponse;
 import kr.codesquad.todo.dto.response.Slice;
 import kr.codesquad.todo.repository.ActionRepository;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 public class ActionService {
@@ -15,6 +17,11 @@ public class ActionService {
 
 	public ActionService(ActionRepository actionRepository) {
 		this.actionRepository = actionRepository;
+	}
+
+	@Transactional
+	public void register(ActionType actionType, ActionData actionData) {
+		actionRepository.save(actionData.toResponse(actionType).toEntity());
 	}
 
 	// 활동기록(히스토리) 목록 조회
