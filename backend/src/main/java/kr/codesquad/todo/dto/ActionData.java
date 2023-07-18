@@ -1,5 +1,7 @@
 package kr.codesquad.todo.dto;
 
+import java.time.LocalDateTime;
+
 import kr.codesquad.todo.domain.ActionType;
 import kr.codesquad.todo.dto.response.ActionResponse;
 
@@ -43,7 +45,8 @@ public class ActionData {
 			actionType.getDescription(),
 			cardTitle,
 			originCategoryName,
-			targetCategoryName
+			targetCategoryName,
+			LocalDateTime.now()
 		);
 	}
 }

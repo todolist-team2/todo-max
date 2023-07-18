@@ -19,14 +19,14 @@ public class ActionResponse {
 	private LocalDateTime createdAt;
 
 	public ActionResponse(String nickname, String actionName, String cardName, String originCategoryName,
-		String targetCategoryName) {
+		String targetCategoryName, LocalDateTime createdAt) {
 		this.nickname = nickname;
 		this.imageUrl = "";
 		this.actionName = actionName;
 		this.cardName = cardName;
 		this.originCategoryName = originCategoryName;
 		this.targetCategoryName = targetCategoryName;
-		this.createdAt = LocalDateTime.now();
+		this.createdAt = createdAt;
 	}
 
 	public String getNickname() {
@@ -67,7 +67,8 @@ public class ActionResponse {
 				action.getActionName(),
 				action.getCardName(),
 				action.getOriginCategoryName(),
-				action.getTargetCategoryName()));
+				action.getTargetCategoryName(),
+				action.getCreatedAt()));
 		});
 
 		return new Slice<>(actionResponseList, actionList.getHasNext());
