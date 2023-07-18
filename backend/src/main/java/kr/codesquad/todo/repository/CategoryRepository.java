@@ -17,8 +17,6 @@ public class CategoryRepository {
 
 	private final NamedParameterJdbcTemplate jdbcTemplate;
 	private final SimpleJdbcInsert simpleJdbcInsert;
-	private final DataSource dataSource;
-
 
 	public CategoryRepository(NamedParameterJdbcTemplate jdbcTemplate, DataSource dataSource) {
 		this.jdbcTemplate = jdbcTemplate;
@@ -26,66 +24,27 @@ public class CategoryRepository {
 				.withTableName("category")
 				.usingColumns("name", "user_account_id")
 				.usingGeneratedKeyColumns("id");
-		this.dataSource = dataSource;
 	}
-
 
 	public Boolean existById(Long categoryId) {
 		String existById = "SELECT EXISTS (SELECT id FROM category WHERE id = :id)";
 		return jdbcTemplate.queryForObject(existById, Map.of("id", categoryId), Boolean.class);
 	}
 
-
 	// 카테고리 추가
 	public Long save(Category category) {
 		return simpleJdbcInsert.executeAndReturnKey(new BeanPropertySqlParameterSource(category)).longValue();
 	}
 
-
 	// 카테고리 수정
-	public Long update(Long categoryId, Category category) {
-		Connection connection = null;
-		PreparedStatement statement = null;
-		try {
-			String sql = "UPDATE category SET name = ? WHERE id = ?";
-			connection = dataSource.getConnection();
-			statement = connection.prepareStatement(sql);
-			statement.setString(1, category.getName());
-			statement.setLong(2, categoryId);
-			statement.executeUpdate();
-		} catch (SQLException e) {
-			throw new RuntimeException(e.getSQLState());
-		} finally {
-			try {
-				statement.close();
-				connection.close();
-			} catch (SQLException e) {
-				throw new RuntimeException(e.getMessage());
-			}
-		}
-		return categoryId;
+	public void update(Long categoryId, Category category) {
+		jdbcTemplate.update("UPDATE category SET name = :name WHERE id = :id",
+				Map.of("name", category.getName(), "id", categoryId));
 	}
-
 
 	// 카테고리 삭제
 	public void delete(Long categoryId) {
-		Connection connection = null;
-		PreparedStatement statement = null;
-		try {
-			String sql = "DELETE FROM category WHERE id = ?";
-			connection = dataSource.getConnection();
-			statement = connection.prepareStatement(sql);
-			statement.setLong(1, categoryId);
-			statement.executeUpdate();
-		} catch (SQLException e) {
-			throw new RuntimeException(e.getSQLState());
-		} finally {
-			try {
-				statement.close();
-				connection.close();
-			} catch (SQLException e) {
-				throw new RuntimeException(e.getMessage());
-			}
-		}
+		jdbcTemplate.update("DELETE FROM category WHERE id = :id",
+				Map.of("id", categoryId));
 	}
 }
