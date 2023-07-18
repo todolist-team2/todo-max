@@ -4,19 +4,25 @@ import TTheme from "../../../../../types/TTheme";
 
 const LIMIT_TEXT_LENGTH = 500;
 
-function CardForm({
-  variant = "default",
+type HandleSubmitButtonClickType<T> = T extends "edit"
+  ? ({ title, content }: { title: string; content: string }, cardId: number) => Promise<void>
+  : ({ title, content }: { title: string; content: string }) => Promise<void>;
+
+function CardForm<T extends "edit" | "add">({
   mode,
+  variant = "default",
+  originalContent = { id: 0, title: "", content: "" },
   handleCancelButtonClick,
   handleSubmitButtonClick,
 }: {
+  mode: T;
   variant?: "default" | "drag" | "place";
-  mode: "add" | "edit";
+  originalContent?: { id: number; title: string; content: string };
   handleCancelButtonClick: () => void;
-  handleSubmitButtonClick: ({ title, content }: { title: string; content: string }) => Promise<void>;
+  handleSubmitButtonClick: HandleSubmitButtonClickType<T>;
 }) {
-  const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
+  const [title, setTitle] = useState(originalContent.title);
+  const [content, setContent] = useState(originalContent.content);
   const contentAreaRef = useRef<HTMLTextAreaElement>(null);
 
   const resizeContentArea = () => {
@@ -34,7 +40,7 @@ function CardForm({
   const isSubmitBtnClickable = title.length !== 0 && content.length !== 0;
 
   return (
-    <StyledCard variant={variant}>
+    <StyledCard $variant={variant}>
       <h4 className="blind">카드</h4>
       <div className="inner">
         <input type="text" value={title} placeholder="제목을 입력하세요" onChange={(e) => setTitle(e.target.value)} />
@@ -59,7 +65,7 @@ function CardForm({
         <li>
           <button
             onClick={() => {
-              handleSubmitButtonClick({ title, content });
+              handleSubmitButtonClick({ title, content }, originalContent.id);
             }}
             disabled={!isSubmitBtnClickable}
           >
@@ -71,7 +77,7 @@ function CardForm({
   );
 }
 
-const StyledCard = styled.article<{ theme: TTheme; variant: "default" | "drag" | "place" }>`
+const StyledCard = styled.article<{ theme: TTheme; $variant: "default" | "drag" | "place" }>`
   width: 300px;
   padding: 16px;
   border-radius: 8px;
@@ -81,7 +87,7 @@ const StyledCard = styled.article<{ theme: TTheme; variant: "default" | "drag" |
   flex-direction: column;
   justify-content: flex-start;
   gap: 16px;
-  opacity: ${(props) => (props.variant === "place" ? 0.3 : 1)};
+  opacity: ${(props) => (props.$variant === "place" ? 0.3 : 1)};
   margin-bottom: 10px;
 
   .inner {
