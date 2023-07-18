@@ -6,14 +6,19 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import kr.codesquad.todo.exeption.BusinessException;
-import kr.codesquad.todo.exeption.ErrorCode;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 public class CardsResponse {
 
 	private final Long categoryId;
 	private final String categoryName;
 	private final List<CardData> cards;
+
+	public CardsResponse() {
+		this.categoryId = null;
+		this.categoryName = null;
+		this.cards = null;
+	}
 
 	public CardsResponse(Long categoryId, String categoryName, List<CardData> cards) {
 		this.categoryId = categoryId;
@@ -35,7 +40,7 @@ public class CardsResponse {
 		return card.entrySet().stream()
 			.map(CardsResponse::from)
 			.findFirst()
-			.orElseThrow(() -> new BusinessException(ErrorCode.CATEGORY_NOT_FOUND));
+			.orElse(new CardsResponse());
 	}
 
 	private static CardsResponse from(Map.Entry<CategoryResponse, List<CardData>> entry) {
@@ -61,14 +66,17 @@ public class CardsResponse {
 		return answer;
 	}
 
+	@JsonInclude(JsonInclude.Include.NON_NULL)
 	public Long getCategoryId() {
 		return categoryId;
 	}
 
+	@JsonInclude(JsonInclude.Include.NON_NULL)
 	public String getCategoryName() {
 		return categoryName;
 	}
 
+	@JsonInclude(JsonInclude.Include.NON_NULL)
 	public List<CardData> getCards() {
 		return cards;
 	}

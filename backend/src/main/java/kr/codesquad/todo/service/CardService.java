@@ -5,8 +5,8 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import kr.codesquad.todo.aop.ActionLogging;
 import kr.codesquad.todo.domain.ActionType;
-import kr.codesquad.todo.dto.ActionData;
 import kr.codesquad.todo.dto.request.CardCreationRequest;
 import kr.codesquad.todo.dto.request.CardMoveRequest;
 import kr.codesquad.todo.dto.response.CardData;
@@ -14,67 +14,53 @@ import kr.codesquad.todo.dto.response.CardsResponse;
 import kr.codesquad.todo.exeption.BusinessException;
 import kr.codesquad.todo.exeption.ErrorCode;
 import kr.codesquad.todo.repository.CardRepository;
-import kr.codesquad.todo.repository.CategoryRepository;
 
 @Service
 public class CardService {
 
-	private final ActionService actionService;
 	private final CardRepository cardRepository;
-	private final CategoryRepository categoryRepository;
 
-	public CardService(ActionService actionService, CardRepository cardRepository,
-		CategoryRepository categoryRepository) {
-		this.actionService = actionService;
+	public CardService(CardRepository cardRepository) {
 		this.cardRepository = cardRepository;
-		this.categoryRepository = categoryRepository;
 	}
 
+	@ActionLogging(ActionType.REGISTER)
 	@Transactional
 	public Long register(Long categoryId, CardCreationRequest cardCreationRequest) {
-		String categoryName = categoryRepository.findNameById(categoryId)
-			.orElseThrow(() -> new BusinessException(ErrorCode.CATEGORY_NOT_FOUND));
-
 		Long headId = cardRepository.findHeadIdByCategoryId(categoryId).orElse(0L);
 		Long id = cardRepository.save(cardCreationRequest.toEntity(categoryId));
 		if (headId != 0L) {
 			cardRepository.updateById(headId, id);
 		}
-
-		registerAction(ActionType.REGISTER, new ActionData(cardCreationRequest.getTitle(), categoryName, null));
 		return id;
 	}
 
+	@ActionLogging(ActionType.DELETE)
 	@Transactional
-	public void delete(Long cardId) {
+	public Long delete(Long cardId) {
 		CardData card = cardRepository.findById(cardId)
 			.orElseThrow(() -> new BusinessException(ErrorCode.CARD_NOT_FOUND));
 
 		cardRepository.findIdByPrevId(cardId, card.getCategoryResponse().getCategoryId())
 			.ifPresent(nextId -> cardRepository.updateById(nextId, card.getPrevCardId()));
 		cardRepository.deleteById(cardId);
-
-		registerAction(ActionType.DELETE, new ActionData(card.getTitle()));
+		return cardId;
 	}
 
+	@ActionLogging(ActionType.MOVE)
 	@Transactional
-	public void move(Long cardId, CardMoveRequest cardMoveRequest) {
+	public Long move(Long cardId, CardMoveRequest cardMoveRequest) {
 		CardData card = cardRepository.findById(cardId)
 			.orElseThrow(() -> new BusinessException(ErrorCode.CARD_NOT_FOUND));
 		if (cardMoveRequest.isSamePosition(card.getCategoryResponse().getCategoryId())) {
-			return;
+			return null;
 		}
 		updateNextCard(cardId, card.getCategoryResponse().getCategoryId(), cardMoveRequest.getFromPrevCardId());
 		updateNextCard(cardMoveRequest.getToPrevCardId(), cardMoveRequest.getToCategoryId(), cardId);
 
 		cardRepository.updateCategoryIdAndPrevCardIdById(cardId, cardMoveRequest.getToCategoryId(),
 			cardMoveRequest.getToPrevCardId());
-
-		String targetCategoryName = categoryRepository.findNameById(cardMoveRequest.getToCategoryId())
-			.orElseThrow(() -> new BusinessException(ErrorCode.CATEGORY_NOT_FOUND));
-
-		registerAction(ActionType.MOVE,
-			new ActionData(card.getTitle(), card.getCategoryResponse().getCategoryName(), targetCategoryName));
+		return cardId;
 	}
 
 	private void updateNextCard(Long cardId, Long categoryId, Long changedCardId) {
@@ -82,14 +68,11 @@ public class CardService {
 			.ifPresent(nextCardId -> cardRepository.updateById(nextCardId, changedCardId));
 	}
 
+	@ActionLogging(ActionType.MODIFY)
 	@Transactional
-	public void update(Long cardId, CardCreationRequest cardCreationRequest) {
+	public Long update(Long cardId, CardCreationRequest cardCreationRequest) {
 		cardRepository.update(cardId, cardCreationRequest.getTitle(), cardCreationRequest.getContent());
-		registerAction(ActionType.MODIFY, new ActionData(cardCreationRequest.getTitle()));
-	}
-
-	private void registerAction(ActionType actionType, ActionData actionData) {
-		actionService.register(actionType, actionData);
+		return cardId;
 	}
 
 	@Transactional(readOnly = true)

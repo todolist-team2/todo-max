@@ -6,23 +6,34 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.sql.DataSource;
 
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 
 import kr.codesquad.todo.domain.Action;
+import kr.codesquad.todo.dto.response.ActionResponse;
 import kr.codesquad.todo.dto.response.Slice;
 
 @Repository
 public class ActionRepository {
 
-	private DataSource dataSource;
-	private NamedParameterJdbcTemplate jdbcTemplate;
-	private SimpleJdbcInsert jdbcInsert;
+	private static final RowMapper<ActionResponse> actionResponseRowMapper = ((rs, rowNum) -> new ActionResponse(
+		rs.getString("nickname"),
+		rs.getString("action_name"),
+		rs.getString("card_name"),
+		rs.getString("origin_category_name"),
+		rs.getString("target_category_name"),
+		rs.getTimestamp("created_at").toLocalDateTime()));
+
+	private final DataSource dataSource;
+	private final NamedParameterJdbcTemplate jdbcTemplate;
+	private final SimpleJdbcInsert jdbcInsert;
 
 	public ActionRepository(DataSource dataSource) {
 		this.dataSource = dataSource;
@@ -103,5 +114,13 @@ public class ActionRepository {
 				throw new RuntimeException(e);
 			}
 		}
+	}
+
+	public List<ActionResponse> retrieveAll(Long userId) {
+		String retrieveAll =
+			"SELECT u.nickname, u.image_url, a.action_name, a.card_name, a.origin_category_name, a.target_category_name, a.created_at FROM action a "
+				+ "JOIN user_account u ON u.id = a.user_id "
+				+ "WHERE a.user_id = :userId";
+		return jdbcTemplate.query(retrieveAll, Map.of("userId", userId), actionResponseRowMapper);
 	}
 }

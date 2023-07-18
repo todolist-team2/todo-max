@@ -12,6 +12,7 @@ CREATE TABLE card
     modified_at  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP(0) ON UPDATE CURRENT_TIMESTAMP(0),
     category_id  BIGINT       NOT NULL,
     prev_card_id BIGINT       NOT NULL,
+    is_deleted   BOOLEAN      NOT NULL DEFAULT FALSE,
     PRIMARY KEY (`id`)
 );
 

@@ -18,13 +18,11 @@ import org.springframework.stereotype.Repository;
 
 import kr.codesquad.todo.domain.Card;
 import kr.codesquad.todo.dto.response.CardData;
+import kr.codesquad.todo.dto.response.CardDataForActionResponse;
 import kr.codesquad.todo.dto.response.CategoryResponse;
 
 @Repository
 public class CardRepository {
-
-	private final NamedParameterJdbcTemplate jdbcTemplate;
-	private final SimpleJdbcInsert simpleJdbcInsert;
 
 	private static final RowMapper<CardData> cardDataRowMapper = ((rs, rowNum) -> new CardData(
 		rs.getLong("id"),
@@ -33,6 +31,8 @@ public class CardRepository {
 		rs.getString("nickname"),
 		rs.getLong("prev_card_id"),
 		new CategoryResponse(rs.getLong("category_id"), rs.getString("name"))));
+	private final NamedParameterJdbcTemplate jdbcTemplate;
+	private final SimpleJdbcInsert simpleJdbcInsert;
 
 	public CardRepository(NamedParameterJdbcTemplate jdbcTemplate, DataSource dataSource) {
 		this.jdbcTemplate = jdbcTemplate;
@@ -61,43 +61,27 @@ public class CardRepository {
 		jdbcTemplate.update(updateById, Map.of("id", id, "prevCardId", prevCardId));
 	}
 
-	public Optional<Long> findPrevIdById(Long cardId) {
-		String findPrevIdById = "SELECT prev_card_id FROM card WHERE id = :id";
-		try {
-			return Optional.ofNullable(jdbcTemplate.queryForObject(findPrevIdById, Map.of("id", cardId), Long.class));
-		} catch (EmptyResultDataAccessException e) {
-			return Optional.empty();
-		}
-	}
-
 	public void deleteById(Long cardId) {
-		String deleteById = "DELETE FROM card WHERE id = :id";
+		String deleteById = "UPDATE card SET is_deleted = true WHERE id = :id";
 		jdbcTemplate.update(deleteById, Map.of("id", cardId));
 	}
 
 	public Optional<Long> findIdByPrevId(Long prevId, Long categoryId) {
-		String findByPrevId = "SELECT id FROM card WHERE prev_card_id = :prevId AND category_id = :categoryId";
+		String findByPrevId = "SELECT id FROM card WHERE prev_card_id = :prevId AND category_id = :categoryId AND is_deleted = false";
 		return Optional.ofNullable(DataAccessUtils.singleResult(jdbcTemplate.query(findByPrevId,
 			Map.of("prevId", prevId, "categoryId", categoryId),
 			(rs, rowNum) -> rs.getLong("id"))));
 	}
 
-	public Optional<Long> findCategoryIdById(Long id) {
-		String findCategoryIdById = "SELECT category_id FROM card WHERE id = :id";
-		return Optional.ofNullable(DataAccessUtils.singleResult(jdbcTemplate.query(findCategoryIdById,
-			Map.of("id", id),
-			(rs, rowNum) -> rs.getLong("category_id"))));
-	}
-
 	public void updateCategoryIdAndPrevCardIdById(Long id, Long categoryId, Long prevId) {
 		String updateCategoryIdAndPrevCardIdById =
-			"UPDATE card SET prev_card_id = :prevId, category_id = :categoryId WHERE id = :id";
+			"UPDATE card SET prev_card_id = :prevId, category_id = :categoryId WHERE id = :id AND is_deleted = false";
 		jdbcTemplate.update(updateCategoryIdAndPrevCardIdById,
 			Map.of("prevId", prevId, "categoryId", categoryId, "id", id));
 	}
 
 	public void update(Long id, String title, String content) {
-		String updateSql = "UPDATE card SET title = :title, content = :content WHERE id = :id;";
+		String updateSql = "UPDATE card SET title = :title, content = :content WHERE id = :id AND is_deleted = false";
 		SqlParameterSource parameters = new MapSqlParameterSource()
 			.addValue("id", id)
 			.addValue("title", title)
@@ -110,7 +94,7 @@ public class CardRepository {
 			+ "FROM card as c "
 			+ "LEFT JOIN category as cg ON c.category_id = cg.id "
 			+ "LEFT JOIN user_account as u ON cg.user_account_id = u.id "
-			+ "WHERE c.id = :id;";
+			+ "WHERE c.id = :id AND is_deleted = false";
 		return Optional.ofNullable(
 			DataAccessUtils.singleResult(
 				jdbcTemplate.query(findById, Map.of("id", cardId), (rs, rowNum) ->
@@ -130,7 +114,7 @@ public class CardRepository {
 	public List<CardData> findAll() {
 		String findAll =
 			"SELECT c.id, c.title, c.content, u.nickname, c.prev_card_id, cg.id as category_id, cg.name FROM card c "
-				+ "RIGHT JOIN category cg ON c.category_id = cg.id "
+				+ "RIGHT JOIN category cg ON c.category_id = cg.id AND c.is_deleted = false "
 				+ "LEFT JOIN user_account u ON cg.user_account_id = u.id "
 				+ "WHERE u.id = 1";
 		return jdbcTemplate.query(findAll, cardDataRowMapper);
@@ -139,14 +123,31 @@ public class CardRepository {
 	public List<CardData> findByCategoryId(Long categoryId) {
 		String findByCategoryId =
 			"SELECT c.id, c.title, c.content, u.nickname, c.prev_card_id, cg.id as category_id, cg.name FROM card c "
-				+ "RIGHT JOIN category cg ON c.category_id = cg.id "
+				+ "RIGHT JOIN category cg ON c.category_id = cg.id AND c.is_deleted = false"
 				+ "LEFT JOIN user_account u ON cg.user_account_id = u.id "
 				+ "WHERE u.id = 1 AND cg.id = :categoryId";
 		return jdbcTemplate.query(findByCategoryId, Map.of("categoryId", categoryId), cardDataRowMapper);
 	}
 
 	public void deleteAllByCategoryId(Long categoryId) {
-		String deleteAllByCategoryId = "DELETE FROM card WHERE category_id = :categoryId";
+		String deleteAllByCategoryId = "UPDATE card SET is_deleted = true WHERE category_id = :categoryId";
 		jdbcTemplate.update(deleteAllByCategoryId, Map.of("categoryId", categoryId));
+	}
+
+	public Optional<CardDataForActionResponse> findCardDataById(Long cardId) {
+		String cardDataForActionResponse = "SELECT c.title, cg.name, cg.user_account_id FROM card c "
+			+ "JOIN category cg ON cg.id = c.category_id "
+			+ "WHERE c.id = :id";
+		return Optional.ofNullable(
+			DataAccessUtils.singleResult(
+				jdbcTemplate.query(cardDataForActionResponse, Map.of("id", cardId), (rs, rowNum) ->
+					new CardDataForActionResponse(
+						rs.getString("title"),
+						rs.getString("name"),
+						rs.getLong("user_account_id")
+					)
+				)
+			)
+		);
 	}
 }
