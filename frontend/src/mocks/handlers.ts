@@ -1,9 +1,26 @@
 import { rest } from "msw";
 
 export const handlers = [
-  // 전체 카드 목록 불러오기
-  rest.get('/api/cards', async(req, res, ctx) => {
-    return res(ctx.status(200), ctx.json(allData));
+  // 카테고리별 카드 목록 불러오기
+  rest.get("/api/cards", async (req, res, ctx) => {
+    const categoryId = req.url.searchParams.get("categoryId");
+    if (!categoryId) {
+      return res(ctx.status(200), ctx.json(allData));
+    }
+    
+    const numberCategoryId = parseInt(categoryId);
+
+    if (isNaN(numberCategoryId)) {
+      return res(ctx.status(400), ctx.json({ error: "categoryId must be numeric" }));
+    }
+
+    const categoryIndex = allData.findIndex((column) => column.categoryId === numberCategoryId);
+
+    if (categoryIndex === -1) {
+      return res(ctx.status(404), ctx.json({ error: "categoryId not found" }));
+    }
+
+    return res(ctx.status(200), ctx.json(allData[categoryIndex]));
   }),
 
   // 카드 추가(등록)
@@ -24,16 +41,16 @@ export const handlers = [
       return res(ctx.status(400), ctx.json({ error: "title or content is required" }));
     }
 
-    const newCard = {
-      id: generateUniqueId(),
+    const newCardId = generateUniqueId();
+
+    category.cards = [{
+      id: newCardId,
       title,
       content,
       nickname: "unknown",
-    };
+    }, ...category.cards];
 
-    category.cards = [newCard, ...category.cards];
-
-    return res(ctx.status(200), ctx.json(newCard));
+    return res(ctx.status(200), ctx.json({ cardId: newCardId }));
   }),
 
   // 카드 삭제

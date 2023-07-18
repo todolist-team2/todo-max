@@ -30,6 +30,33 @@ const Column = styled(
       setIsAddFormOpen(false);
     };
 
+    const addCard = async ({ title, content }: { title: string; content: string }) => {
+      const res = await fetch("/api/cards?" + new URLSearchParams({ categoryId: categoryId.toString() }).toString(), {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          title,
+          content,
+        }),
+      });
+      const result = await res.json();
+      closeAddForm();
+      // TODO: 칼럼 목록 불러오기
+    };
+  
+    const removeCard = async (cardId: number) => {
+      const res = await fetch("/api/cards/" + cardId.toString(), {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      const result = await res.json();
+      // TODO: 칼럼 목록 불러오기
+    };
+
     return (
       <article className={className}>
         <ColumnTitle title={categoryName} count={cards.length} />

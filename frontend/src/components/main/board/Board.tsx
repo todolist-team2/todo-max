@@ -33,6 +33,27 @@ const Board = styled(({ className }: { className?: string }) => {
     };
   }
 
+  const fetchUpdatedColumn = async (categoryId: number) => {
+    const updatedColumn = await fetchColumn(categoryId);
+
+    setColumns((columns) => {
+      return columns.map((column) => {
+        return column.categoryId === categoryId? updatedColumn : column;
+      });
+    });
+  };
+
+  const fetchColumn = async (categoryId: number) => {
+    const res = await fetch("/api/cards?" + new URLSearchParams({ categoryId: categoryId.toString() }).toString(), {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    const result: TColumn = await res.json();
+    return result;
+  };
+
   return (
     <ul className={className}>
       {columns.map((column, index) => {
