@@ -163,4 +163,22 @@ const allData = [
       },
     ],
   },
+  {
+    categoryId: 3,
+    categoryName: "doing",
+    cards: [
+      {
+        id: 3,
+        title: "title1",
+        content: "content",
+        nickname: "nickname",
+      },
+      {
+        id: 4,
+        title: "title2",
+        content: "content2",
+        nickname: "nickname2",
+      },
+    ],
+  },
 ];

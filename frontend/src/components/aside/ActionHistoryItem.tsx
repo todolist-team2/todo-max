@@ -1,7 +1,7 @@
 import { css, styled } from "styled-components";
 import TTheme from "../../types/TTheme";
 
-const HistoryActionItem = styled(
+const ActionHistoryItem = styled(
   ({
     className,
     userName,
@@ -19,7 +19,7 @@ const HistoryActionItem = styled(
         <figure className="image">
           <img
             src="https://innostudio.de/fileuploader/images/default-avatar.png"
-            alt=""
+            alt={userName}
           />
           <figcaption className="blind">사진</figcaption>
         </figure>
@@ -40,11 +40,11 @@ const HistoryActionItem = styled(
     );
   }
 )<{ theme: TTheme }>`
-  width: 348px;
+  min-width: 348px;
   display: flex;
-  gap: 16px;
   align-items: flex-start;
   padding: 16px;
+  box-sizing: border-box;
   ${({ theme }) => {
     const { font, color, border } = theme;
 
@@ -65,6 +65,7 @@ const HistoryActionItem = styled(
         display: flex;
         flex-direction: column;
         gap: 8px;
+        margin-left: 16px;
         .user-name {
           font: ${font.display.medium14};
           color: ${color.text.default};
@@ -87,4 +88,4 @@ const HistoryActionItem = styled(
   }}
 `;
 
-export default HistoryActionItem;
+export default ActionHistoryItem;

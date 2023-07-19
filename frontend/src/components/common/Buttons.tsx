@@ -97,6 +97,10 @@ const Buttons = styled(
         break;
       case "Icon + Text":
         styleRules += `
+          .container {
+            display: flex;
+            align-items: center;
+          }
           .text-label {
             padding: 0 4px;
           }
