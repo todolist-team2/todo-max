@@ -9,6 +9,7 @@ import kr.codesquad.todo.dto.response.ActionData;
 import kr.codesquad.todo.dto.response.ActionResponse;
 import kr.codesquad.todo.dto.response.Slice;
 import kr.codesquad.todo.repository.ActionRepository;
+import org.springframework.util.ObjectUtils;
 
 @Service
 public class ActionService {
@@ -25,19 +26,25 @@ public class ActionService {
 	}
 
 	// 활동기록(히스토리) 목록 조회
-	public Slice<ActionResponse> getActions(int page, int size) {
-		// 로그인한 유저 정보 (임시)
-		String nickname = "멋진삼";
-		String imageUrl = "https://이미지어쩌구";
+	@Transactional(readOnly = true)
+	public Object getActions(String cursor, String size) {
+		// 로그인한 유저 정보는 find 로 가져왔다고 가정
+		String nickname = "bruni";
+		String imageUrl = "https://github-production-user-asset-6210df.s3.amazonaws.com/48724199/254183695-5d025f0a-e616-494d-8ec0-287a279d800f.jpg";
 
-		Slice<Action> actionList = actionRepository.findAll(page, size);
-
-		// 나중에 활동기록 마다 유저 정보가 다를 수 있다면
-		// Action 의 userId 를 통해 유저 정보를 가져와서 ActionResponse 에 넣어주는 작업이 필요하다.
-		return ActionResponse.of(actionList, nickname, imageUrl);
+		if (cursor == null && size == null) {
+			return ActionResponse.toResponse(actionRepository.findAll(), nickname, imageUrl);
+		} else if (ObjectUtils.isEmpty(cursor)) {
+			cursor = Long.MAX_VALUE + "";
+		} else if (ObjectUtils.isEmpty(size)) {
+			size = "20";
+		}
+		Slice<Action> actionList = actionRepository.findSliceByCursor(cursor, Integer.parseInt(size));
+		return ActionResponse.toResponse(actionList, nickname, imageUrl);
 	}
 
 	// 활동기록(히스토리) 전체 삭제
+	@Transactional
 	public void deleteActions() {
 		// 나중에 활동기록 마다 유저 정보가 다를 수 있다면
 		// 로그인된 유저 정보를 이용해서 본인의 활동기록만 삭제할 수 있도록 해야한다.
