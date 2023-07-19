@@ -68,11 +68,12 @@ function CardForm<T extends "edit" | "add">({
             $Flexible=""
             $Type="Contained"
             $ElementPattern="Text Only"
-            $States="Enable"
+            $States={isSubmitBtnClickable ?  "Enable" :"Disabled"}
             text={mode === "add" ? "등록" : "저장"}
             onClick={() => {
               handleSubmitButtonClick({ title, content }, originalContent.id);
             }}
+            disabled={!isSubmitBtnClickable}
           />
         </li>
       </ul>

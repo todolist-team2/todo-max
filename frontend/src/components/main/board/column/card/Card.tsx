@@ -7,7 +7,7 @@ import Buttons from "../../../../common/Buttons";
 type TMode = "Default" | "Add/Edit" | "Drag" | "Place";
 
 const Card = styled(
-  ({ className, title, content, onDelete }: { className?: string; title: string; content: string; onDelete: () => Promise<void> }) => {
+  ({ className, title, content, onDelete, onEdit }: { className?: string; title: string; content: string; onDelete: () => Promise<void>, onEdit: () => void }) => {
     const [mode, setMode] = useState<TMode>("Default");
 
     function editFormSubmitHandler(event: FormEvent<HTMLFormElement>): void {
@@ -37,7 +37,7 @@ const Card = styled(
                 />
               </li>
               <li>
-                <Buttons $Flexible="" $Type="Ghost" $ElementPattern="Icon Only" $States="Enable" icon="Edit" onClick={() => setMode("Add/Edit")} />
+                <Buttons $Flexible="" $Type="Ghost" $ElementPattern="Icon Only" $States="Enable" icon="Edit" onClick={onEdit} />
               </li>
             </menu>
           </div>
