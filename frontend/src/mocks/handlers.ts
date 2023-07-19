@@ -150,13 +150,13 @@ const allData = [
     categoryName: "doing",
     cards: [
       {
-        id: 1,
+        id: 3,
         title: "title1",
         content: "content",
         nickname: "nickname",
       },
       {
-        id: 2,
+        id: 4,
         title: "title2",
         content: "content2",
         nickname: "nickname2",
