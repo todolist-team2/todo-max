@@ -8,6 +8,9 @@ import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+import kr.codesquad.todo.exeption.BusinessException;
+import kr.codesquad.todo.exeption.ErrorCode;
+
 public class CardsResponse {
 
 	private final Long categoryId;
@@ -40,7 +43,7 @@ public class CardsResponse {
 		return card.entrySet().stream()
 			.map(CardsResponse::from)
 			.findFirst()
-			.orElse(new CardsResponse());
+			.orElseThrow(() -> new BusinessException(ErrorCode.CATEGORY_NOT_FOUND));
 	}
 
 	private static CardsResponse from(Map.Entry<CategoryResponse, List<CardData>> entry) {

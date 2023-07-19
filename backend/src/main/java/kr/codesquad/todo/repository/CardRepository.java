@@ -24,13 +24,19 @@ import kr.codesquad.todo.dto.response.CategoryResponse;
 @Repository
 public class CardRepository {
 
-	private static final RowMapper<CardData> cardDataRowMapper = ((rs, rowNum) -> new CardData(
+	private static final RowMapper<CardData> CARD_DATA_ROW_MAPPER = ((rs, rowNum) -> new CardData(
 		rs.getLong("id"),
 		rs.getString("title"),
 		rs.getString("content"),
 		rs.getString("nickname"),
 		rs.getLong("prev_card_id"),
 		new CategoryResponse(rs.getLong("category_id"), rs.getString("name"))));
+	private static final RowMapper<CardDataForActionResponse> CARD_DATA_FOR_ACTION_RESPONSE_ROW_MAPPER = (rs, rowNum) ->
+		new CardDataForActionResponse(
+			rs.getString("title"),
+			rs.getString("name"),
+			rs.getLong("user_account_id")
+		);
 	private final NamedParameterJdbcTemplate jdbcTemplate;
 	private final SimpleJdbcInsert simpleJdbcInsert;
 
@@ -117,7 +123,7 @@ public class CardRepository {
 				+ "RIGHT JOIN category cg ON c.category_id = cg.id AND c.is_deleted = false "
 				+ "LEFT JOIN user_account u ON cg.user_account_id = u.id "
 				+ "WHERE u.id = 1";
-		return jdbcTemplate.query(findAll, cardDataRowMapper);
+		return jdbcTemplate.query(findAll, CARD_DATA_ROW_MAPPER);
 	}
 
 	public List<CardData> findByCategoryId(Long categoryId) {
@@ -126,7 +132,7 @@ public class CardRepository {
 				+ "RIGHT JOIN category cg ON c.category_id = cg.id AND c.is_deleted = false"
 				+ "LEFT JOIN user_account u ON cg.user_account_id = u.id "
 				+ "WHERE u.id = 1 AND cg.id = :categoryId";
-		return jdbcTemplate.query(findByCategoryId, Map.of("categoryId", categoryId), cardDataRowMapper);
+		return jdbcTemplate.query(findByCategoryId, Map.of("categoryId", categoryId), CARD_DATA_ROW_MAPPER);
 	}
 
 	public void deleteAllByCategoryId(Long categoryId) {
@@ -140,14 +146,7 @@ public class CardRepository {
 			+ "WHERE c.id = :id";
 		return Optional.ofNullable(
 			DataAccessUtils.singleResult(
-				jdbcTemplate.query(cardDataForActionResponse, Map.of("id", cardId), (rs, rowNum) ->
-					new CardDataForActionResponse(
-						rs.getString("title"),
-						rs.getString("name"),
-						rs.getLong("user_account_id")
-					)
-				)
-			)
-		);
+				jdbcTemplate.query(cardDataForActionResponse, Map.of("id", cardId),
+					CARD_DATA_FOR_ACTION_RESPONSE_ROW_MAPPER)));
 	}
 }

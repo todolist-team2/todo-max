@@ -1,12 +1,12 @@
 package kr.codesquad.todo.service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import kr.codesquad.todo.domain.Action;
+import kr.codesquad.todo.domain.ActionType;
 import kr.codesquad.todo.dto.response.ActionResponse;
 import kr.codesquad.todo.dto.response.CardDataForActionResponse;
 import kr.codesquad.todo.dto.response.Slice;
@@ -52,17 +52,16 @@ public class ActionService {
 	}
 
 	@Transactional
-	public void create(Long id, String actionName, Long originCategoryId) {
-		CardDataForActionResponse cardDataForActionResponse = cardRepository.findCardDataById(id)
+	public void create(Long cardId, ActionType actionType, Long originCategoryId) {
+		CardDataForActionResponse cardDataForActionResponse = cardRepository.findCardDataById(cardId)
 			.orElseThrow(() -> new BusinessException(ErrorCode.CARD_NOT_FOUND));
 		String originCategoryName = null;
 		if (originCategoryId != null) {
 			originCategoryName = categoryRepository.findNameById(originCategoryId)
 				.orElseThrow(() -> new BusinessException(ErrorCode.CATEGORY_NOT_FOUND));
 		}
-		Action action = new Action(null, actionName, cardDataForActionResponse.getCardName(), originCategoryName,
-			cardDataForActionResponse.getTargetCategoryName(), LocalDateTime.now(),
-			cardDataForActionResponse.getUserId());
+		Action action = actionType.from(cardDataForActionResponse.getCardName(), originCategoryName,
+			cardDataForActionResponse.getTargetCategoryName(), cardDataForActionResponse.getUserId());
 		actionRepository.save(action);
 	}
 

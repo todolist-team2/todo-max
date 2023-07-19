@@ -1,5 +1,7 @@
 package kr.codesquad.todo.domain;
 
+import java.time.LocalDateTime;
+
 public enum ActionType {
 
 	REGISTER("등록"),
@@ -11,6 +13,11 @@ public enum ActionType {
 
 	ActionType(String description) {
 		this.description = description;
+	}
+
+	public Action from(String cardName, String originCategoryName, String targetCategoryName, Long userId) {
+		return new Action(null, description, cardName, originCategoryName, targetCategoryName, LocalDateTime.now(),
+			userId);
 	}
 
 	public String getDescription() {

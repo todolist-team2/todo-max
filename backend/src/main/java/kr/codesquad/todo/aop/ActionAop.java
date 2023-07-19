@@ -20,11 +20,10 @@ public class ActionAop {
 
 	@AfterReturning(pointcut = "@annotation(actionLogging)", returning = "id")
 	public void logAction(JoinPoint joinPoint, Long id, ActionLogging actionLogging) {
-		String actionName = actionLogging.value().getDescription();
 		Long originCategoryId = null;
 		if (joinPoint.getArgs().length > 1 && joinPoint.getArgs()[1] instanceof CardMoveRequest) {
 			originCategoryId = ((CardMoveRequest)joinPoint.getArgs()[1]).getToCategoryId();
 		}
-		actionService.create(id, actionName, originCategoryId);
+		actionService.create(id, actionLogging.value(), originCategoryId);
 	}
 }
