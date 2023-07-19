@@ -5,7 +5,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import kr.codesquad.todo.domain.Action;
 import kr.codesquad.todo.domain.ActionType;
-import kr.codesquad.todo.dto.ActionData;
+import kr.codesquad.todo.dto.response.ActionData;
 import kr.codesquad.todo.dto.response.ActionResponse;
 import kr.codesquad.todo.dto.response.Slice;
 import kr.codesquad.todo.repository.ActionRepository;
@@ -21,7 +21,7 @@ public class ActionService {
 
 	@Transactional
 	public void register(ActionType actionType, ActionData actionData) {
-		actionRepository.save(actionData.toResponse(actionType).toEntity());
+		actionRepository.save(actionData.toEntity(actionType));
 	}
 
 	// 활동기록(히스토리) 목록 조회
@@ -41,7 +41,6 @@ public class ActionService {
 	public void deleteActions() {
 		// 나중에 활동기록 마다 유저 정보가 다를 수 있다면
 		// 로그인된 유저 정보를 이용해서 본인의 활동기록만 삭제할 수 있도록 해야한다.
-
 		actionRepository.deleteAll();
 	}
 }

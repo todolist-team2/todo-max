@@ -18,10 +18,10 @@ public class ActionResponse {
 	private String targetCategoryName;
 	private LocalDateTime createdAt;
 
-	public ActionResponse(String nickname, String actionName, String cardName, String originCategoryName,
-		String targetCategoryName, LocalDateTime createdAt) {
+	public ActionResponse(String nickname, String imageUrl, String actionName, String cardName, String originCategoryName,
+	                      String targetCategoryName, LocalDateTime createdAt) {
 		this.nickname = nickname;
-		this.imageUrl = "";
+		this.imageUrl = imageUrl;
 		this.actionName = actionName;
 		this.cardName = cardName;
 		this.originCategoryName = originCategoryName;
