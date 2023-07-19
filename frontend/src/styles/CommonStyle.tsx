@@ -2,6 +2,10 @@ import { createGlobalStyle } from "styled-components";
 import TTheme from "../types/TTheme";
 
 const CommonStyle = createGlobalStyle<{ theme: TTheme }>`
+  html {
+    overflow: hidden;
+  }
+
   body {
     position: relative;
     width: 100vw;

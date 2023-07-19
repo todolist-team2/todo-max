@@ -4,7 +4,6 @@ import Main from "./components/main/Main";
 import Alert from "./components/common/Alert";
 import Container from "./styles/Container";
 import Aside from "./components/aside/Aside";
-import HistoryActionItem from "./components/common/HistoryActionItem";
 
 const App: React.FC = () => {
   const [isHistoryOpen, setIsHistoryOpen] = useState<boolean>(false);
@@ -15,10 +14,10 @@ const App: React.FC = () => {
 
   return (
     <>
-      <Header />
+      <Header {...{toggleHistory}}/>
       <Container>
         <Main />
-        {/* <Aside /> */}
+        <Aside {...{ isHistoryOpen, toggleHistory }} />
       </Container>
       <Alert />
     </>
