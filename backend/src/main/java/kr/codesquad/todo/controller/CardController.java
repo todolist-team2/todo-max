@@ -38,7 +38,7 @@ public class CardController {
 		@RequestParam Long categoryId,
 		@RequestBody CardCreationRequest cardCreationRequest) {
 		return ResponseEntity.status(HttpStatus.CREATED)
-			.body(Map.of("categoryId", cardService.register(categoryId, cardCreationRequest)));
+			.body(Map.of("cardId", cardService.register(categoryId, cardCreationRequest)));
 	}
 
 	@DeleteMapping("/{cardId}")
