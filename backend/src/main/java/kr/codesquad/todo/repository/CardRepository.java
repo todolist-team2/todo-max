@@ -141,7 +141,7 @@ public class CardRepository {
 			"SELECT c.id, c.title, c.content, u.nickname, c.prev_card_id, cg.id as category_id, cg.name FROM card c "
 				+ "RIGHT JOIN category cg ON c.category_id = cg.id "
 				+ "LEFT JOIN user_account u ON cg.user_account_id = u.id "
-				+ "WHERE u.id = 1 AND cg.id = :categoryId";
+				+ "WHERE cg.id = :categoryId";
 		return jdbcTemplate.query(findByCategoryId, Map.of("categoryId", categoryId), cardDataRowMapper);
 	}
 

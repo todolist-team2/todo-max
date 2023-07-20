@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import kr.codesquad.todo.domain.ActionType;
-import kr.codesquad.todo.dto.ActionData;
+import kr.codesquad.todo.dto.response.ActionData;
 import kr.codesquad.todo.dto.request.CardCreationRequest;
 import kr.codesquad.todo.dto.request.CardMoveRequest;
 import kr.codesquad.todo.dto.response.CardData;

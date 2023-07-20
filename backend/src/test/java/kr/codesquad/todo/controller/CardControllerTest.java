@@ -49,7 +49,7 @@ class CardControllerTest {
 					.queryParam("categoryId", "1")
 					.content(objectMapper.writeValueAsString(FixtureFactory.createCardCreationRequest())))
 				.andExpect(status().isCreated())
-				.andExpect(jsonPath("$.categoryId").value(1))
+				.andExpect(jsonPath("$.cardId").value(1))
 				.andDo(print());
 		}
 

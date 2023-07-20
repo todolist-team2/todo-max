@@ -44,7 +44,6 @@ class CardServiceTest {
 		@Test
 		void registerTest() {
 			// given
-			given(categoryRepository.existById(anyLong())).willReturn(Boolean.TRUE);
 			given(cardRepository.findHeadIdByCategoryId(anyLong())).willReturn(Optional.of(1L));
 			given(cardRepository.save(any(Card.class))).willReturn(2L);
 			willDoNothing().given(cardRepository).updateById(anyLong(), anyLong());
@@ -55,7 +54,6 @@ class CardServiceTest {
 
 			// then
 			assertAll(
-				() -> then(categoryRepository).should(times(1)).existById(anyLong()),
 				() -> then(cardRepository).should(times(1)).findHeadIdByCategoryId(anyLong()),
 				() -> then(cardRepository).should(times(1)).save(any(Card.class)),
 				() -> then(cardRepository).should(times(1)).updateById(anyLong(), anyLong()),
@@ -67,14 +65,13 @@ class CardServiceTest {
 		@Test
 		void givenInvalidCategoryId_thenThrowsException() {
 			// given
-			given(categoryRepository.existById(anyLong())).willReturn(Boolean.FALSE);
+			given(categoryRepository.findNameById(anyLong())).willReturn(Optional.empty());
 
 			// when & then
 			assertAll(
 				() -> assertThatThrownBy(() -> cardService.register(100L, FixtureFactory.createCardCreationRequest()))
 					.isInstanceOf(BusinessException.class)
 					.extracting("errorCode").isEqualTo(ErrorCode.CATEGORY_NOT_FOUND),
-				() -> then(categoryRepository).should(times(1)).existById(anyLong()),
 				() -> then(cardRepository).should(never()).findHeadIdByCategoryId(anyLong()),
 				() -> then(cardRepository).should(never()).save(any(Card.class)),
 				() -> then(cardRepository).should(never()).updateById(anyLong(), anyLong())
@@ -85,7 +82,6 @@ class CardServiceTest {
 		@Test
 		void givenEmptyHeadId_thenDoNotUpdate() {
 			// given
-			given(categoryRepository.existById(anyLong())).willReturn(Boolean.TRUE);
 			given(cardRepository.findHeadIdByCategoryId(anyLong())).willReturn(Optional.empty());
 			given(cardRepository.save(any(Card.class))).willReturn(2L);
 			given(categoryRepository.findNameById(anyLong())).willReturn(Optional.of("TO-DO"));
@@ -95,7 +91,6 @@ class CardServiceTest {
 
 			// then
 			assertAll(
-				() -> then(categoryRepository).should(times(1)).existById(anyLong()),
 				() -> then(cardRepository).should(times(1)).findHeadIdByCategoryId(anyLong()),
 				() -> then(cardRepository).should(times(1)).save(any(Card.class)),
 				() -> then(cardRepository).should(never()).updateById(anyLong(), anyLong()),

@@ -1,8 +1,8 @@
 package kr.codesquad.todo.dto.response;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -18,10 +18,11 @@ public class ActionResponse {
 	private String targetCategoryName;
 	private LocalDateTime createdAt;
 
-	public ActionResponse(String nickname, String actionName, String cardName, String originCategoryName,
+	public ActionResponse(String nickname, String imageUrl, String actionName, String cardName,
+		String originCategoryName,
 		String targetCategoryName, LocalDateTime createdAt) {
 		this.nickname = nickname;
-		this.imageUrl = "";
+		this.imageUrl = imageUrl;
 		this.actionName = actionName;
 		this.cardName = cardName;
 		this.originCategoryName = originCategoryName;
@@ -59,22 +60,15 @@ public class ActionResponse {
 		return createdAt;
 	}
 
-	public static Slice<ActionResponse> of(Slice<Action> actionList, String nickname, String imageUrl) {
-		List<ActionResponse> actionResponseList = new ArrayList<>();
-
-		actionList.getContent().forEach(action -> {
-			actionResponseList.add(new ActionResponse(nickname,
+	public static List<ActionResponse> toResponse(List<Action> actionList, String nickname, String imageUrl) {
+		return actionList.stream().map(
+			action -> new ActionResponse(
+				nickname,
+				imageUrl,
 				action.getActionName(),
 				action.getCardName(),
 				action.getOriginCategoryName(),
 				action.getTargetCategoryName(),
-				action.getCreatedAt()));
-		});
-
-		return new Slice<>(actionResponseList, actionList.getHasNext());
-	}
-
-	public Action toEntity() {
-		return new Action(null, actionName, cardName, originCategoryName, targetCategoryName, createdAt, 1L);
+				action.getCreatedAt())).collect(Collectors.toList());
 	}
 }
