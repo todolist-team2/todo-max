@@ -140,8 +140,8 @@ const allData = [
       {
         id: 2,
         title: "title2",
-        content: "content2",
-        nickname: "nickname2",
+        content: "content",
+        nickname: "nickname",
       },
     ],
   },
@@ -151,34 +151,23 @@ const allData = [
     cards: [
       {
         id: 3,
-        title: "title1",
+        title: "title3",
         content: "content",
         nickname: "nickname",
       },
       {
         id: 4,
-        title: "title2",
-        content: "content2",
-        nickname: "nickname2",
+        title: "title4",
+        content: "content",
+        nickname: "nickname",
       },
     ],
   },
   {
     categoryId: 3,
-    categoryName: "doing",
+    categoryName: "done",
     cards: [
-      {
-        id: 3,
-        title: "title1",
-        content: "content",
-        nickname: "nickname",
-      },
-      {
-        id: 4,
-        title: "title2",
-        content: "content2",
-        nickname: "nickname2",
-      },
+      
     ],
   },
 ];

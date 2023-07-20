@@ -1,22 +1,27 @@
-import { FormEvent, useEffect, useState, useCallback } from "react";
+import { FormEvent, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { css, styled } from "styled-components";
 import { useAlert } from "../../../../../hooks/useAlert";
 import TTheme from "../../../../../types/TTheme";
 import Buttons from "../../../../common/Buttons";
+import { DragContext } from "../../Board";
 
 type TMode = "Default" | "Add/Edit" | "Drag" | "Place";
 
 const Card = styled(
   ({
     className,
+    id,
     title,
     content,
+    nickname,
     onDelete,
     onEdit,
   }: {
     className?: string;
+    id: number;
     title: string;
     content: string;
+    nickname: string;
     onDelete: () => Promise<void>;
     onEdit: () => void;
   }) => {
@@ -24,6 +29,8 @@ const Card = styled(
     const [isMouseDown, setIsMouseDown] = useState(false);
     const [dragOffset, setDragOffset] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
     const [position, setPosition] = useState<{ x: number; y: number }>();
+    const componentRef = useRef<HTMLElement>(null);
+    const { handleDraggingCardDataUpdate, handleDraggingCardPositionUpdate, addCardRect, startDragging } = useContext(DragContext);
 
     function editFormSubmitHandler(event: FormEvent<HTMLFormElement>): void {
       event.preventDefault();
@@ -31,19 +38,29 @@ const Card = styled(
     }
 
     const handleMouseDown = (e: React.MouseEvent) => {
-      const cardRect = e.currentTarget.getBoundingClientRect();
-      const offsetX = e.clientX - cardRect.left;
-      const offsetY = e.clientY - cardRect.top;
+      const componentRect = componentRef.current!.getBoundingClientRect();
+      const offsetX = e.clientX - componentRect.left;
+      const offsetY = e.clientY - componentRect.top;
+
       setDragOffset({ x: offsetX, y: offsetY });
       setIsMouseDown(true);
     };
 
-    const handleMouseMove = useCallback((e: MouseEvent) => {
-      setPosition({
-        x: e.clientX - dragOffset.x,
-        y: e.clientY - dragOffset.y,
-      });
-    }, [dragOffset]);
+    const handleMouseMove = useCallback(
+      (e: MouseEvent) => {
+        setPosition({
+          x: e.clientX - dragOffset.x,
+          y: e.clientY - dragOffset.y,
+        });
+        handleDraggingCardPositionUpdate({
+          x: e.clientX,
+          y: e.clientY,
+        });
+        handleDraggingCardDataUpdate({ id, title, content, nickname });
+        startDragging();
+      },
+      [dragOffset, handleDraggingCardPositionUpdate, handleDraggingCardDataUpdate, startDragging, id, title, content, nickname]
+    );
 
     const handleMouseUp = () => {
       setIsMouseDown(false);
@@ -54,6 +71,7 @@ const Card = styled(
           position: "absolute",
           left: `${position.x}px`,
           top: `${position.y}px`,
+          zIndex: "100",
         }
       : {};
 
@@ -61,6 +79,7 @@ const Card = styled(
       if (!isMouseDown) {
         return;
       }
+
       window.addEventListener("mousemove", handleMouseMove);
 
       return () => {
@@ -68,8 +87,21 @@ const Card = styled(
       };
     }, [isMouseDown, handleMouseMove]);
 
+    useEffect(() => {
+      if (componentRef.current) {
+        addCardRect(id, componentRef.current.getBoundingClientRect());
+      }
+    }, []);
+
     return (
-      <article className={className} data-mode={mode} onMouseDown={handleMouseDown} onMouseUp={handleMouseUp} style={positionStyle}>
+      <article
+        className={className}
+        data-mode={mode}
+        ref={componentRef}
+        onMouseDown={handleMouseDown}
+        onMouseUp={handleMouseUp}
+        style={positionStyle}
+      >
         <h4 className="blind">카드</h4>
         {mode !== "Add/Edit" && (
           <div className="container">
