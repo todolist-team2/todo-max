@@ -18,8 +18,9 @@ public class ActionResponse {
 	private String targetCategoryName;
 	private LocalDateTime createdAt;
 
-	public ActionResponse(String nickname, String imageUrl, String actionName, String cardName, String originCategoryName,
-	                      String targetCategoryName, LocalDateTime createdAt) {
+	public ActionResponse(String nickname, String imageUrl, String actionName, String cardName,
+		String originCategoryName,
+		String targetCategoryName, LocalDateTime createdAt) {
 		this.nickname = nickname;
 		this.imageUrl = imageUrl;
 		this.actionName = actionName;
@@ -59,28 +60,15 @@ public class ActionResponse {
 		return createdAt;
 	}
 
-	public static Slice<ActionResponse> toResponse(Slice<Action> actionList, String nickname, String imageUrl) {
-		List<ActionResponse> actionResponseList = actionList.getContent().stream().map(
-						action -> new ActionResponse(
-								nickname,
-								imageUrl,
-								action.getActionName(),
-								action.getCardName(),
-								action.getOriginCategoryName(),
-								action.getTargetCategoryName(),
-								action.getCreatedAt())).collect(Collectors.toList());
-		return new Slice<>(actionResponseList, actionList.getCurrentCursor(), actionList.getHasNext());
-	}
-
 	public static List<ActionResponse> toResponse(List<Action> actionList, String nickname, String imageUrl) {
 		return actionList.stream().map(
-				action -> new ActionResponse(
-						nickname,
-						imageUrl,
-						action.getActionName(),
-						action.getCardName(),
-						action.getOriginCategoryName(),
-						action.getTargetCategoryName(),
-						action.getCreatedAt())).collect(Collectors.toList());
+			action -> new ActionResponse(
+				nickname,
+				imageUrl,
+				action.getActionName(),
+				action.getCardName(),
+				action.getOriginCategoryName(),
+				action.getTargetCategoryName(),
+				action.getCreatedAt())).collect(Collectors.toList());
 	}
 }

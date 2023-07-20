@@ -1,15 +1,14 @@
 package kr.codesquad.todo.service;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import kr.codesquad.todo.domain.Action;
 import kr.codesquad.todo.domain.ActionType;
 import kr.codesquad.todo.dto.response.ActionData;
 import kr.codesquad.todo.dto.response.ActionResponse;
-import kr.codesquad.todo.dto.response.Slice;
 import kr.codesquad.todo.repository.ActionRepository;
-import org.springframework.util.ObjectUtils;
 
 @Service
 public class ActionService {
@@ -27,20 +26,12 @@ public class ActionService {
 
 	// 활동기록(히스토리) 목록 조회
 	@Transactional(readOnly = true)
-	public Object getActions(String cursor, String size) {
+	public List<ActionResponse> getActions() {
 		// 로그인한 유저 정보는 find 로 가져왔다고 가정
 		String nickname = "bruni";
 		String imageUrl = "https://github-production-user-asset-6210df.s3.amazonaws.com/48724199/254183695-5d025f0a-e616-494d-8ec0-287a279d800f.jpg";
 
-		if (cursor == null && size == null) {
-			return ActionResponse.toResponse(actionRepository.findAll(), nickname, imageUrl);
-		} else if (ObjectUtils.isEmpty(cursor)) {
-			cursor = Long.MAX_VALUE + "";
-		} else if (ObjectUtils.isEmpty(size)) {
-			size = "20";
-		}
-		Slice<Action> actionList = actionRepository.findSliceByCursor(cursor, Integer.parseInt(size));
-		return ActionResponse.toResponse(actionList, nickname, imageUrl);
+		return ActionResponse.toResponse(actionRepository.findAll(), nickname, imageUrl);
 	}
 
 	// 활동기록(히스토리) 전체 삭제
