@@ -61,6 +61,7 @@ export const handlers = [
 
       const newCardId = generateUniqueId();
 
+
       category.cards = [
         {
           id: newCardId,
@@ -156,6 +157,70 @@ export const handlers = [
     }
   ),
 
+  // 카드 이동
+  rest.patch<{ fromPrevCardId: number; toCategoryId: number; toPrevCardId: number }>("/api/cards/:cardId", async (req, res, ctx) => {
+    const { cardId } = req.params;
+
+    // cardId로 기존 카드 찾기
+    if (!cardId) {
+      return res(ctx.status(400), ctx.json({ error: "cardId is required" }));
+    }
+
+    if (typeof cardId !== "string") {
+      return res(ctx.status(400), ctx.json({ error: "typeof cardId is invalid(not string)" }));
+    }
+
+    const numberCardId = parseInt(cardId);
+
+    const fromCategory = allData.find((category) => category.cards.some((card) => card.id === numberCardId));
+
+    if (!fromCategory) {
+      return res(ctx.status(400), ctx.json({ error: "category doesn't exist which contains card having cardId" }));
+    }
+
+    const fromCardIndex = fromCategory.cards.findIndex((card) => card.id === numberCardId);
+
+    if (fromCardIndex === -1) {
+      return res(ctx.status(400), ctx.json({ error: "card is not found" }));
+    }
+
+    const { fromPrevCardId, toCategoryId, toPrevCardId } = req.body;
+
+    // toCategoryId로 카테고리 찾기
+    if (typeof toCategoryId !== "number") {
+      return res(ctx.status(400), ctx.json({ error: "typeof toCategoryId is invalid(not number)" }));
+    }
+
+    const toCategory = allData.find((category) => category.categoryId === toCategoryId);
+
+    if (!toCategory) {
+      return res(ctx.status(400), ctx.json({ error: "toCategory is not found" }));
+    }
+
+    // toPrevCardId로 카드 찾기
+    if (typeof toPrevCardId !== "number") {
+      return res(ctx.status(400), ctx.json({ error: "typeof toPrevCardId is invalid(not number)" }));
+    }
+
+    const toCardIndex = toCategory.cards.findIndex((card) => card.id === toPrevCardId) + 1;
+
+    // fromPrevCardId로 카드 찾기
+    if (typeof fromPrevCardId !== "number") {
+      return res(ctx.status(400), ctx.json({ error: "typeof fromPrevCardId is invalid(not number)" }));
+    }
+
+    const fromPrevCardIndex = fromCategory.cards.findIndex((card) => card.id === fromPrevCardId) + 1;
+
+    if (fromPrevCardIndex === -1 && fromPrevCardId !== 0) {
+      return res(ctx.status(400), ctx.json({ error: "fromPrevCard is not found" }));
+    }
+
+    // 카드 이동 로직
+    toCategory.cards.splice(toCardIndex, 0, fromCategory.cards.splice(fromCardIndex, 1)[0]);
+
+    return res(ctx.status(200), ctx.json({}));
+  })
+  
   rest.get("/api/actions", async (req, res, ctx) => {
     return res(ctx.status(200), ctx.json(actions));
   }),
@@ -193,8 +258,8 @@ const allData = [
       {
         id: 2,
         title: "title2",
-        content: "content2",
-        nickname: "nickname2",
+        content: "content",
+        nickname: "nickname",
       },
     ],
   },
@@ -204,35 +269,22 @@ const allData = [
     cards: [
       {
         id: 3,
-        title: "title1",
+        title: "title3",
         content: "content",
         nickname: "nickname",
       },
       {
         id: 4,
-        title: "title2",
-        content: "content2",
-        nickname: "nickname2",
+        title: "title4",
+        content: "content",
+        nickname: "nickname",
       },
     ],
   },
   {
     categoryId: 3,
-    categoryName: "doing",
-    cards: [
-      {
-        id: 3,
-        title: "title1",
-        content: "content",
-        nickname: "nickname",
-      },
-      {
-        id: 4,
-        title: "title2",
-        content: "content2",
-        nickname: "nickname2",
-      },
-    ],
+    categoryName: "done",
+    cards: [],
   },
 ];
 
