@@ -98,8 +98,6 @@ const Column = styled(
       return cardId === activeCardFormIdentifier.cardId && categoryId === activeCardFormIdentifier.categoryId;
     };
 
-    console.log("draggingDestinationData", draggingDestinationData.index);
-
     return (
       <article className={className} ref={componentRef}>
         <ColumnTitle title={categoryName} count={cards.length} handlePlusButtonClick={() => toggleAddForm(categoryId)} />
@@ -124,7 +122,7 @@ const Column = styled(
                 {isActiveEditForm(card.id) ? (
                   <CardForm mode="edit" originalContent={card} handleCancelButtonClick={closeCardForm} handleSubmitButtonClick={editCard} />
                 ) : (
-                  <Card {...card} onDelete={() => deleteCard(card.id)} onEdit={() => openEditForm(card.id, categoryId)} />
+                  <Card {...card} onDelete={() => deleteCard(card.id)} onEdit={() => openEditForm(card.id, categoryId)} onCardChanged={onCardChanged} />
                 )}
               </li>
               {isDragging &&

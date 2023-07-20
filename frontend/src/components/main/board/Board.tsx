@@ -18,6 +18,14 @@ export const DragContext = createContext({
   addCardRect: (id: number, rect: DOMRect) => {},
   draggingDestinationData: { categoryId: 0, index: -1, isBefore: false } as { categoryId: number; index: number; isBefore: boolean },
   addColumnRect: (id: number, rect: DOMRect) => {},
+  getDropData: () => {
+    return {
+      fromPrevCardId: 0,
+      toCategoryId: 0,
+      toPrevCardId: 0,
+    };
+  },
+  initializeDragStates: () => {},
 });
 
 const Board = styled(({ className }: { className?: string }) => {
@@ -124,6 +132,34 @@ const Board = styled(({ className }: { className?: string }) => {
     });
   };
 
+  const getDropData = () => {
+    if (!isDragging || !draggingCardData || !draggingDestinationData) {
+      return {
+        fromPrevCardId: 0,
+        toCategoryId: 0,
+        toPrevCardId: 0,
+      };
+    }
+
+    const { categoryId, index, isBefore } = draggingDestinationData;
+    const { id: cardId } = draggingCardData;
+
+    const fromPrevCardId = columns.find((column) => column.cards.some((card) => card.id === cardId))?.cards[index - 1]?.id ?? 0;
+    const toPrevCardId = isBefore
+      ? columns.find((column) => column.categoryId === categoryId)?.cards[index - 1]?.id ?? 0
+      : columns.find((column) => column.categoryId === categoryId)?.cards[index]?.id ?? 0;
+
+    return {
+      fromPrevCardId,
+      toCategoryId: categoryId,
+      toPrevCardId,
+    };
+  };
+
+  const initializeDragStates = () => {
+    setIsDragging(false);
+  };
+
   return (
     <DragContext.Provider
       value={{
@@ -137,6 +173,8 @@ const Board = styled(({ className }: { className?: string }) => {
         addCardRect,
         draggingDestinationData,
         addColumnRect,
+        getDropData,
+        initializeDragStates,
       }}
     >
       <ul className={className}>

@@ -2,6 +2,7 @@ import { FormEvent, useCallback, useContext, useEffect, useRef, useState } from 
 import { css, styled } from "styled-components";
 import { useAlert } from "../../../../../hooks/useAlert";
 import TTheme from "../../../../../types/TTheme";
+import fetchData from "../../../../../utils/fetch";
 import Buttons from "../../../../common/Buttons";
 import { DragContext } from "../../Board";
 
@@ -16,6 +17,7 @@ const Card = styled(
     nickname,
     onDelete,
     onEdit,
+    onCardChanged,
   }: {
     className?: string;
     id: number;
@@ -24,13 +26,15 @@ const Card = styled(
     nickname: string;
     onDelete: () => Promise<void>;
     onEdit: () => void;
+    onCardChanged: () => Promise<void>;
   }) => {
     const [mode, setMode] = useState<TMode>("Default");
     const [isMouseDown, setIsMouseDown] = useState(false);
     const [dragOffset, setDragOffset] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
     const [position, setPosition] = useState<{ x: number; y: number }>();
     const componentRef = useRef<HTMLElement>(null);
-    const { handleDraggingCardDataUpdate, handleDraggingCardPositionUpdate, addCardRect, startDragging } = useContext(DragContext);
+    const { handleDraggingCardDataUpdate, handleDraggingCardPositionUpdate, addCardRect, startDragging, draggingDestinationData, getDropData, initializeDragStates } =
+      useContext(DragContext);
 
     function editFormSubmitHandler(event: FormEvent<HTMLFormElement>): void {
       event.preventDefault();
@@ -64,6 +68,37 @@ const Card = styled(
 
     const handleMouseUp = () => {
       setIsMouseDown(false);
+      const { fromPrevCardId, toCategoryId, toPrevCardId } = getDropData();
+      moveCard(id, { fromPrevCardId, toCategoryId, toPrevCardId });
+      initializeDragStates();
+    };
+
+    const moveCard = async (
+      cardId: number,
+      destinationData: {
+        fromPrevCardId: number;
+        toCategoryId: number;
+        toPrevCardId: number;
+      }
+    ) => {
+      console.log("destination", destinationData)
+      try {
+        await fetchData(
+          `/api/cards/${cardId}`,
+          {
+            method: "PATCH",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(destinationData),
+          },
+          () => {
+            onCardChanged();
+          }
+        );
+      } catch (error) {
+        console.error(error);
+      }
     };
 
     const positionStyle: React.CSSProperties = position
