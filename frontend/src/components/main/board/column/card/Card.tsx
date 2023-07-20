@@ -1,4 +1,4 @@
-import { CSSProperties, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { css, styled } from "styled-components";
 import { useDragContext } from "../../../../../contexts/DragContext";
 import { useAlert } from "../../../../../hooks/useAlert";
@@ -29,8 +29,7 @@ const Card = styled(
   }) => {
     const [mode, setMode] = useState<TMode>("Default");
     const cardRef = useRef<HTMLElement>(null);
-    const { coordinates, isDragging, draggedCard, dragPosition, dragOffset, setCoordinates, setIsDragging, setDraggedCard, setDragOffset } =
-      useDragContext();
+    const { draggedCard, draggedCardStyle, setCoordinates, setIsDragging, setDraggedCard, setDragOffset } = useDragContext();
 
     useEffect(() => {
       if (cardRef.current) {
@@ -88,13 +87,8 @@ const Card = styled(
       );
     };
 
-    const dragStyle: CSSProperties =
-      isDragging && id === draggedCard?.id && dragPosition && dragOffset
-        ? { position: "absolute", zIndex: "100", top: dragPosition.y - dragOffset.y, left: dragPosition.x - dragOffset.x }
-        : {};
-
     return (
-      <article className={className} data-mode={mode} style={dragStyle} ref={cardRef} onMouseDown={startDrag}>
+      <article className={className} data-mode={mode} style={draggedCard?.id === id ? draggedCardStyle : {}} ref={cardRef} onMouseDown={startDrag}>
         <h4 className="blind">카드</h4>
         {mode !== "Add/Edit" && (
           <div className="container">

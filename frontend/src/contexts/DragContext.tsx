@@ -1,4 +1,4 @@
-import { ReactNode, createContext, useContext, useState } from "react";
+import { CSSProperties, ReactNode, createContext, useContext, useState } from "react";
 
 type DragContextType = {
   isDragging: boolean;
@@ -26,6 +26,7 @@ type DragContextType = {
     >
   >;
   getCardCenter: (x: number, y: number) => { x: number; y: number };
+  draggedCardStyle: CSSProperties;
 };
 
 type DragProviderProps = {
@@ -62,6 +63,10 @@ export default function DragProvider({ children }: DragProviderProps) {
     return { x: x - dragOffset!.x + draggedCard!.rect.width / 2, y: y - dragOffset!.y + draggedCard!.rect.height / 2 };
   };
 
+  const draggedCardStyle: CSSProperties = isDragging && dragPosition && dragOffset
+        ? { position: "absolute", zIndex: "100", top: dragPosition.y - dragOffset.y, left: dragPosition.x - dragOffset.x }
+        : {};
+
   const value = {
     isDragging,
     setIsDragging,
@@ -74,6 +79,7 @@ export default function DragProvider({ children }: DragProviderProps) {
     coordinates,
     setCoordinates,
     getCardCenter,
+    draggedCardStyle
   };
 
   return <DragContext.Provider value={value}>{children}</DragContext.Provider>;
