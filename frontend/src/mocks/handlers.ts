@@ -11,10 +11,15 @@ export const handlers = [
     const numberCategoryId = parseInt(categoryId);
 
     if (isNaN(numberCategoryId)) {
-      return res(ctx.status(400), ctx.json({ error: "categoryId must be numeric" }));
+      return res(
+        ctx.status(400),
+        ctx.json({ error: "categoryId must be numeric" })
+      );
     }
 
-    const categoryIndex = allData.findIndex((column) => column.categoryId === numberCategoryId);
+    const categoryIndex = allData.findIndex(
+      (column) => column.categoryId === numberCategoryId
+    );
 
     if (categoryIndex === -1) {
       return res(ctx.status(404), ctx.json({ error: "categoryId not found" }));
@@ -24,37 +29,52 @@ export const handlers = [
   }),
 
   // 카드 추가(등록)
-  rest.post<{ title: string; content: string }>("/api/cards", async (req, res, ctx) => {
-    const categoryId = req.url.searchParams.get("categoryId");
-    if (!categoryId) {
-      return res(ctx.status(400), ctx.json({ error: "categoryId is required" }));
+  rest.post<{ title: string; content: string }>(
+    "/api/cards",
+    async (req, res, ctx) => {
+      const categoryId = req.url.searchParams.get("categoryId");
+      if (!categoryId) {
+        return res(
+          ctx.status(400),
+          ctx.json({ error: "categoryId is required" })
+        );
+      }
+      const numberCategoryId = parseInt(categoryId);
+      const category = allData.find(
+        (category) => category.categoryId === numberCategoryId
+      );
+
+      if (!category) {
+        return res(
+          ctx.status(400),
+          ctx.json({ error: "categoryId is invalid" })
+        );
+      }
+
+      const { title, content } = req.body;
+      if (!title || !content) {
+        return res(
+          ctx.status(400),
+          ctx.json({ error: "title or content is required" })
+        );
+      }
+
+      const newCardId = generateUniqueId();
+
+
+      category.cards = [
+        {
+          id: newCardId,
+          title,
+          content,
+          nickname: "unknown",
+        },
+        ...category.cards,
+      ];
+
+      return res(ctx.status(200), ctx.json({ cardId: newCardId }));
     }
-    const numberCategoryId = parseInt(categoryId);
-    const category = allData.find((category) => category.categoryId === numberCategoryId);
-
-    if (!category) {
-      return res(ctx.status(400), ctx.json({ error: "categoryId is invalid" }));
-    }
-
-    const { title, content } = req.body;
-    if (!title || !content) {
-      return res(ctx.status(400), ctx.json({ error: "title or content is required" }));
-    }
-
-    const newCardId = generateUniqueId();
-
-    category.cards = [
-      {
-        id: newCardId,
-        title,
-        content,
-        nickname: "unknown",
-      },
-      ...category.cards,
-    ];
-
-    return res(ctx.status(200), ctx.json({ cardId: newCardId }));
-  }),
+  ),
 
   // 카드 삭제
   rest.delete("/api/cards/:cardId", async (req, res, ctx) => {
@@ -68,7 +88,9 @@ export const handlers = [
     }
 
     const numberCardId = parseInt(cardId);
-    const category = allData.find((category) => category.cards.some((card) => card.id === numberCardId));
+    const category = allData.find((category) =>
+      category.cards.some((card) => card.id === numberCardId)
+    );
 
     if (!category) {
       return res(ctx.status(400), ctx.json({ error: "cardId is invalid" }));
@@ -80,38 +102,60 @@ export const handlers = [
   }),
 
   // 카드 수정
-  rest.put<{ title: string; content: string }>("/api/cards/:cardId", async (req, res, ctx) => {
-    const { cardId } = req.params;
+  rest.put<{ title: string; content: string }>(
+    "/api/cards/:cardId",
+    async (req, res, ctx) => {
+      const { cardId } = req.params;
 
-    if (!cardId) {
-      return res(ctx.status(400), ctx.json({ error: "cardId is required" }));
+      if (!cardId) {
+        return res(ctx.status(400), ctx.json({ error: "cardId is required" }));
+      }
+
+      if (typeof cardId !== "string") {
+        return res(
+          ctx.status(400),
+          ctx.json({ error: "typeof cardId is invalid(not string)" })
+        );
+      }
+
+      const { title, content } = req.body;
+      if (!title || !content) {
+        return res(
+          ctx.status(400),
+          ctx.json({ error: "title or content is required" })
+        );
+      }
+
+      const numberCardId = parseInt(cardId);
+      const category = allData.find((category) =>
+        category.cards.some((card) => card.id === numberCardId)
+      );
+
+      if (!category) {
+        return res(
+          ctx.status(400),
+          ctx.json({
+            error: "category doesn't exist which contains card having cardId",
+          })
+        );
+      }
+
+      const cardIndex = category.cards.findIndex(
+        (card) => card.id === numberCardId
+      );
+      if (cardIndex === -1) {
+        return res(ctx.status(400), ctx.json({ error: "card is not found" }));
+      }
+
+      category.cards[cardIndex] = {
+        ...category.cards[cardIndex],
+        title,
+        content,
+      };
+
+      return res(ctx.status(200), ctx.json(category.cards[cardIndex]));
     }
-
-    if (typeof cardId !== "string") {
-      return res(ctx.status(400), ctx.json({ error: "typeof cardId is invalid(not string)" }));
-    }
-
-    const { title, content } = req.body;
-    if (!title || !content) {
-      return res(ctx.status(400), ctx.json({ error: "title or content is required" }));
-    }
-
-    const numberCardId = parseInt(cardId);
-    const category = allData.find((category) => category.cards.some((card) => card.id === numberCardId));
-
-    if (!category) {
-      return res(ctx.status(400), ctx.json({ error: "category doesn't exist which contains card having cardId" }));
-    }
-
-    const cardIndex = category.cards.findIndex((card) => card.id === numberCardId);
-    if (cardIndex === -1) {
-      return res(ctx.status(400), ctx.json({ error: "card is not found" }));
-    }
-
-    category.cards[cardIndex] = { ...category.cards[cardIndex], title, content };
-
-    return res(ctx.status(200), ctx.json(category.cards[cardIndex]));
-  }),
+  ),
 
   // 카드 이동
   rest.patch<{ fromPrevCardId: number; toCategoryId: number; toPrevCardId: number }>("/api/cards/:cardId", async (req, res, ctx) => {
@@ -175,6 +219,15 @@ export const handlers = [
     toCategory.cards.splice(toCardIndex, 0, fromCategory.cards.splice(fromCardIndex, 1)[0]);
 
     return res(ctx.status(200), ctx.json({}));
+  })
+  
+  rest.get("/api/actions", async (req, res, ctx) => {
+    return res(ctx.status(200), ctx.json(actions));
+  }),
+  
+  rest.delete("/api/actions", async (req, res, ctx) => {
+    actions.splice(0, actions.length);
+    return res(ctx.status(200), ctx.json(actions));
   }),
 ];
 
@@ -232,5 +285,43 @@ const allData = [
     categoryId: 3,
     categoryName: "done",
     cards: [],
+  },
+];
+
+const actions = [
+  {
+    nickname: "bruni",
+    imageUrl:
+      "https://github-production-user-asset-6210df.s3.amazonaws.com/48724199/254183695-5d025f0a-e616-494d-8ec0-287a279d800f.jpg",
+    actionName: "등록",
+    cardName: "변경전 타이틀",
+    originCategoryName: "to-do",
+    createdAt: "2023-07-20T05:13:14",
+  },
+  {
+    nickname: "bruni",
+    imageUrl:
+      "https://github-production-user-asset-6210df.s3.amazonaws.com/48724199/254183695-5d025f0a-e616-494d-8ec0-287a279d800f.jpg",
+    actionName: "수정",
+    cardName: "변경후 타이틀",
+    createdAt: "2023-07-20T05:13:15",
+  },
+  {
+    nickname: "bruni",
+    imageUrl:
+      "https://github-production-user-asset-6210df.s3.amazonaws.com/48724199/254183695-5d025f0a-e616-494d-8ec0-287a279d800f.jpg",
+    actionName: "삭제",
+    cardName: "타이틀",
+    createdAt: "2023-07-20T05:13:16",
+  },
+  {
+    nickname: "bruni",
+    imageUrl:
+      "https://github-production-user-asset-6210df.s3.amazonaws.com/48724199/254183695-5d025f0a-e616-494d-8ec0-287a279d800f.jpg",
+    actionName: "이동",
+    cardName: "타이틀",
+    originCategoryName: "to-do",
+    targetCategoryName: "to-do",
+    createdAt: "2023-07-20T05:13:17",
   },
 ];

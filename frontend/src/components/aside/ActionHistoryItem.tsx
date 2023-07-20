@@ -1,39 +1,90 @@
 import { css, styled } from "styled-components";
 import TTheme from "../../types/TTheme";
 
+export type TAction = {
+  nickname: string;
+  imageUrl: string;
+  actionName: string;
+  cardName: string;
+  originCategoryName: string;
+  targetCategoryName?: string;
+  createdAt: string;
+};
+
 const ActionHistoryItem = styled(
   ({
     className,
-    userName,
-    body,
-    timeStamp,
+    nickname,
+    imageUrl,
+    actionName,
+    cardName,
+    originCategoryName,
+    targetCategoryName,
+    createdAt,
   }: {
     className?: string;
-    userName: string;
-    body: string;
-    timeStamp: string;
+    nickname: string;
+    imageUrl: string;
+    actionName: string;
+    cardName: string;
+    originCategoryName?: string;
+    targetCategoryName?: string;
+    createdAt: string;
   }) => {
+    const content = () => {
+      switch (actionName) {
+        case "등록":
+          return (
+            <>
+              <strong>{cardName}</strong>을(를)&nbsp;
+              <strong>{originCategoryName}</strong>에서&nbsp; 
+              <strong>{actionName}</strong>하였습니다.
+            </>
+          );
+        case "수정":
+          return (
+            <>
+              <strong>{cardName}</strong>을(를)&nbsp;
+              <strong>{actionName}</strong>하였습니다.
+            </>
+          );
+        case "삭제":
+          return (
+            <>
+              <strong>{cardName}</strong>을(를)&nbsp;
+              <strong>{actionName}</strong>하였습니다.
+            </>
+          );
+        case "이동":
+          return (
+            <>
+              <strong>{cardName}</strong>을(를)&nbsp;
+              <strong>{originCategoryName}</strong>에서&nbsp;
+              <strong>{targetCategoryName}</strong>으로&nbsp;
+              <strong>{actionName}</strong>하였습니다.
+            </>
+          );
+      }
+    };
+
     return (
       <article className={className}>
         <h4 className="blind">사용자 활동 기록</h4>
         <figure className="image">
-          <img
-            src="https://innostudio.de/fileuploader/images/default-avatar.png"
-            alt={userName}
-          />
+          <img src={imageUrl} alt={nickname} />
           <figcaption className="blind">사진</figcaption>
         </figure>
         <img src="" alt="" />
         <dl className="body">
           <dt className="blind">사용자 이름</dt>
-          <dd className="user-name">{userName}</dd>
+          <dd className="user-name">{nickname}</dd>
 
           <dt className="blind">내용</dt>
-          <dd className="body">{body}</dd>
+          <dd className="body">{content()}</dd>
 
           <dt className="blind">시간 표기</dt>
           <dd className="time-stamp">
-            <time>{timeStamp}</time> 전
+            <time>{timeDiff(createdAt)}</time>
           </dd>
         </dl>
       </article>
@@ -61,7 +112,7 @@ const ActionHistoryItem = styled(
           object-fit: cover;
         }
       }
-      .body {
+      > .body {
         display: flex;
         flex-direction: column;
         gap: 8px;
@@ -87,5 +138,19 @@ const ActionHistoryItem = styled(
     `;
   }}
 `;
+
+function timeDiff(inputTime: string) {
+  const now = new Date();
+  const diff = now.getTime() - new Date(inputTime).getTime();
+  const seconds = Math.floor(diff / 1000);
+
+  if (seconds < 60) {
+    return `${seconds}초 전`;
+  } else if (seconds < 3600) {
+    return `${Math.floor(seconds / 60)}분 전`;
+  } else {
+    return `${Math.floor(seconds / 3600)}시간 전`;
+  }
+}
 
 export default ActionHistoryItem;

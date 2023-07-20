@@ -77,7 +77,7 @@ export const theme: TTheme = {
   border: {
     radius: {
       round8: "8px",
-      round16: "8px",
+      round16: "16px",
       circle: "50%",
     },
   },
