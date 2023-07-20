@@ -7,6 +7,7 @@ import fetchData from "../../../../utils/fetch";
 import ColumnTitle from "./ColumnTitle";
 import Card from "./card/Card";
 import CardForm from "./card/CardForm";
+import CardShadow from "./card/CardShadow";
 
 const Column = styled(
   ({
@@ -31,19 +32,27 @@ const Column = styled(
     onCardChanged: () => Promise<void>;
   }) => {
     const columnRef = useRef<HTMLElement>(null);
-    const { isDragging, coordinates } = useDragContext();
+    const { isDragging, dragPosition, draggedCard, setCoordinates } = useDragContext();
 
     useEffect(() => {
       if (columnRef.current) {
-        coordinates.current.push({
-          id: categoryId,
-          xMid: columnRef.current.getBoundingClientRect().x + columnRef.current.getBoundingClientRect().width / 2,
-          top: columnRef.current.getBoundingClientRect().top,
-          bottom: columnRef.current.getBoundingClientRect().bottom,
-          cards: [] as { id: number; mid: number }[],
+        setCoordinates((c) => {
+          return c.some((category) => category.id === categoryId)
+            ? c
+            : [
+                ...c,
+                {
+                  id: categoryId,
+                  left: columnRef.current!.getBoundingClientRect().left,
+                  right: columnRef.current!.getBoundingClientRect().right,
+                  top: columnRef.current!.getBoundingClientRect().top,
+                  bottom: columnRef.current!.getBoundingClientRect().bottom,
+                  cards: [],
+                },
+              ];
         });
       }
-    }, [columnRef, categoryId, coordinates]);
+    }, [columnRef, setCoordinates, categoryId]);
 
     const addCard = async ({ title, content }: { title: string; content: string }) => {
       await fetchData(
@@ -112,15 +121,27 @@ const Column = styled(
               <CardForm mode="add" handleCancelButtonClick={closeCardForm} handleSubmitButtonClick={addCard} />
             </li>
           )}
-          {cards.map((card) => (
-            <li key={card.id}>
-              {isActiveEditForm(card.id) ? (
-                <CardForm mode="edit" originalContent={card} handleCancelButtonClick={closeCardForm} handleSubmitButtonClick={editCard} />
-              ) : (
-                <Card {...card} categoryId={categoryId} onDelete={() => deleteCard(card.id)} onEdit={() => openEditForm(card.id, categoryId)} />
+          {cards.map((card, index) => (
+            <>
+              {isDragging && draggedCard && dragPosition && dragPosition.categoryId === categoryId && dragPosition.index === index && (
+                <li key={`shadow-${draggedCard.id}`}>
+                  <CardShadow {...draggedCard} />
+                </li>
               )}
-            </li>
+              <li key={card.id}>
+                {isActiveEditForm(card.id) ? (
+                  <CardForm mode="edit" originalContent={card} handleCancelButtonClick={closeCardForm} handleSubmitButtonClick={editCard} />
+                ) : (
+                  <Card {...card} categoryId={categoryId} onDelete={() => deleteCard(card.id)} onEdit={() => openEditForm(card.id, categoryId)} />
+                )}
+              </li>
+            </>
           ))}
+          {isDragging && draggedCard && dragPosition && dragPosition.categoryId === categoryId && dragPosition.index === cards.length && (
+            <li>
+              <CardShadow {...draggedCard} />
+            </li>
+          )}
         </ul>
       </article>
     );

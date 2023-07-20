@@ -29,15 +29,32 @@ const Card = styled(
   }) => {
     const [mode, setMode] = useState<TMode>("Default");
     const cardRef = useRef<HTMLElement>(null);
-    const { coordinates, isDragging, draggedCard, dragPosition, dragOffset, setIsDragging, setDraggedCard, setDragOffset } = useDragContext();
+    const { coordinates, isDragging, draggedCard, dragPosition, dragOffset, setCoordinates, setIsDragging, setDraggedCard, setDragOffset } =
+      useDragContext();
 
     useEffect(() => {
       if (cardRef.current) {
-        coordinates.current
-          .find((c) => c.id === categoryId)
-          ?.cards.push({ id, mid: cardRef.current.getBoundingClientRect().y + cardRef.current.getBoundingClientRect().height / 2 });
+        setCoordinates((c) =>
+          c.map((category) => {
+            if (category.id === categoryId) {
+              return {
+                ...category,
+                cards: category.cards.some((card) => card.id === id)
+                  ? category.cards
+                  : [
+                      ...category.cards,
+                      {
+                        id,
+                        mid: cardRef.current!.getBoundingClientRect().y + cardRef.current!.getBoundingClientRect().height / 2,
+                      },
+                    ],
+              };
+            }
+            return category;
+          })
+        );
       }
-    }, [cardRef, coordinates, categoryId, id]);
+    }, [cardRef, setCoordinates, categoryId, id]);
 
     const startDrag = (e: React.MouseEvent) => {
       if (mode === "Default") {
@@ -58,9 +75,17 @@ const Card = styled(
         x: e.clientX - cardRef.current!.getBoundingClientRect().left,
         y: e.clientY - cardRef.current!.getBoundingClientRect().top,
       });
-      coordinates.current
-        .find((c) => c.id === categoryId)!
-        .cards.splice(coordinates.current.find((c) => c.id === categoryId)!.cards.findIndex((c) => c.id === id)!, 1);
+      setCoordinates((c) =>
+        c.map((category) => {
+          if (category.id === categoryId) {
+            return {
+              ...category,
+              cards: category.cards.filter((card) => card.id !== id),
+            };
+          }
+          return category;
+        })
+      );
     };
 
     const dragStyle: CSSProperties =

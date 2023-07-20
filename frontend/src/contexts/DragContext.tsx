@@ -1,4 +1,4 @@
-import { MutableRefObject, ReactNode, createContext, useContext, useRef, useState } from "react";
+import { ReactNode, createContext, useContext, useState } from "react";
 
 type DragContextType = {
   isDragging: boolean;
@@ -9,7 +9,23 @@ type DragContextType = {
   setDragOffset: (offset: { x: number; y: number } | null) => void;
   dragPosition: { x: number; y: number; categoryId: number; index: number } | null;
   setDragPosition: (position: { x: number; y: number; categoryId: number; index: number } | null) => void;
-  coordinates: MutableRefObject<{ id: number; xMid: number; top: number; bottom: number; cards: { id: number; mid: number }[] }[]>;
+  coordinates: { id: number; left: number; right: number; top: number; bottom: number; cards: { id: number; mid: number }[] }[];
+  setCoordinates: React.Dispatch<
+    React.SetStateAction<
+      {
+        id: number;
+        left: number;
+        right: number;
+        top: number;
+        bottom: number;
+        cards: {
+          id: number;
+          mid: number;
+        }[];
+      }[]
+    >
+  >;
+  getCardCenter: (x: number, y: number) => { x: number; y: number };
 };
 
 type DragProviderProps = {
@@ -38,7 +54,13 @@ export default function DragProvider({ children }: DragProviderProps) {
   } | null>(null);
   const [dragOffset, setDragOffset] = useState<{ x: number; y: number } | null>(null);
   const [dragPosition, setDragPosition] = useState<{ x: number; y: number; categoryId: number; index: number } | null>(null);
-  const coordinates = useRef<{ id: number; xMid: number; top: number; bottom: number; cards: [{ id: number; mid: number }] }[]>([]);
+  const [coordinates, setCoordinates] = useState<
+    { id: number; left: number; right: number; top: number; bottom: number; cards: { id: number; mid: number }[] }[]
+  >([]);
+
+  const getCardCenter = (x: number, y: number) => {
+    return { x: x - dragOffset!.x + draggedCard!.rect.width / 2, y: y - dragOffset!.y + draggedCard!.rect.height / 2 };
+  };
 
   const value = {
     isDragging,
@@ -50,6 +72,8 @@ export default function DragProvider({ children }: DragProviderProps) {
     dragPosition,
     setDragPosition,
     coordinates,
+    setCoordinates,
+    getCardCenter,
   };
 
   return <DragContext.Provider value={value}>{children}</DragContext.Provider>;
