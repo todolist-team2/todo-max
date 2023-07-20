@@ -1,3 +1,16 @@
+console.warn = console.warn.bind(
+  console,
+  function filterWarnings(warning: string | string[]) {
+    if (
+      warning.indexOf("styled-components: it looks like an unknown prop") !== -1
+    ) {
+      return;
+    }
+
+    console.warn(warning);
+  }
+);
+
 import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App.tsx";
