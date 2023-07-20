@@ -219,7 +219,7 @@ export const handlers = [
     toCategory.cards.splice(toCardIndex, 0, fromCategory.cards.splice(fromCardIndex, 1)[0]);
 
     return res(ctx.status(200), ctx.json({}));
-  })
+  }),
   
   rest.get("/api/actions", async (req, res, ctx) => {
     return res(ctx.status(200), ctx.json(actions));

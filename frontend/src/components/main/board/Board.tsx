@@ -10,7 +10,6 @@ import Column from "./column/Column";
 export const DragContext = createContext({
   draggingCardData: {} as TCard | undefined,
   handleDraggingCardDataUpdate: (cardData: TCard) => {},
-  draggingCardPosition: undefined as { x: number; y: number } | undefined,
   handleDraggingCardPositionUpdate: (position: { x: number; y: number }) => {},
   isDragging: false,
   startDragging: () => {},
@@ -32,7 +31,6 @@ const Board = styled(({ className }: { className?: string }) => {
   const [columns, setColumns] = useState<TColumn[]>([]);
   const [activeCardFormIdentifier, setActiveCardFormIdentifier] = useState<{ cardId: number; categoryId: number }>({ cardId: 0, categoryId: 0 });
   const [draggingCardData, setDraggingCardData] = useState<TCard | undefined>();
-  const [draggingCardPosition, setDraggingCardPosition] = useState<{ x: number; y: number } | undefined>();
   const [draggingDestinationData, setDraggingDestinationData] = useState<{ categoryId: number; index: number; isBefore: boolean }>({
     categoryId: 0,
     index: -1,
@@ -165,7 +163,6 @@ const Board = styled(({ className }: { className?: string }) => {
       value={{
         draggingCardData,
         handleDraggingCardDataUpdate,
-        draggingCardPosition,
         handleDraggingCardPositionUpdate,
         isDragging,
         startDragging,

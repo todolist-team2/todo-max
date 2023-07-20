@@ -2,7 +2,7 @@ console.warn = console.warn.bind(
   console,
   function filterWarnings(warning: string | string[]) {
     if (
-      warning.indexOf("styled-components: it looks like an unknown prop") !== -1
+      warning.indexOf("styled-components") !== -1
     ) {
       return;
     }

@@ -1,4 +1,4 @@
-import { FormEvent, useCallback, useContext, useEffect, useRef, useState } from "react";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { css, styled } from "styled-components";
 import { useAlert } from "../../../../../hooks/useAlert";
 import TTheme from "../../../../../types/TTheme";
@@ -33,13 +33,14 @@ const Card = styled(
     const [dragOffset, setDragOffset] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
     const [position, setPosition] = useState<{ x: number; y: number }>();
     const componentRef = useRef<HTMLElement>(null);
-    const { handleDraggingCardDataUpdate, handleDraggingCardPositionUpdate, addCardRect, startDragging, draggingDestinationData, getDropData, initializeDragStates } =
-      useContext(DragContext);
-
-    function editFormSubmitHandler(event: FormEvent<HTMLFormElement>): void {
-      event.preventDefault();
-      console.log(event.target);
-    }
+    const {
+      handleDraggingCardDataUpdate,
+      handleDraggingCardPositionUpdate,
+      addCardRect,
+      startDragging,
+      getDropData,
+      initializeDragStates,
+    } = useContext(DragContext);
 
     const handleMouseDown = (e: React.MouseEvent) => {
       const componentRect = componentRef.current!.getBoundingClientRect();
@@ -81,7 +82,6 @@ const Card = styled(
         toPrevCardId: number;
       }
     ) => {
-      console.log("destination", destinationData)
       try {
         await fetchData(
           `/api/cards/${cardId}`,
@@ -163,7 +163,7 @@ const Card = styled(
           </div>
         )}
         {mode === "Add/Edit" && (
-          <form onSubmit={editFormSubmitHandler}>
+          <form>
             <fieldset>
               <input type="text" name="title" defaultValue={title} />
             </fieldset>
