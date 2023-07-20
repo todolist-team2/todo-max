@@ -1,10 +1,9 @@
-import { useCallback, useContext, useEffect, useRef, useState } from "react";
+import { CSSProperties, useEffect, useRef, useState } from "react";
 import { css, styled } from "styled-components";
+import { useDragContext } from "../../../../../contexts/DragContext";
 import { useAlert } from "../../../../../hooks/useAlert";
 import TTheme from "../../../../../types/TTheme";
-import fetchData from "../../../../../utils/fetch";
 import Buttons from "../../../../common/Buttons";
-import { DragContext } from "../../Board";
 
 type TMode = "Default" | "Add/Edit" | "Drag" | "Place";
 
@@ -15,128 +14,62 @@ const Card = styled(
     title,
     content,
     nickname,
+    categoryId,
     onDelete,
     onEdit,
-    onCardChanged,
   }: {
     className?: string;
     id: number;
     title: string;
     content: string;
     nickname: string;
+    categoryId: number;
     onDelete: () => Promise<void>;
     onEdit: () => void;
-    onCardChanged: () => Promise<void>;
   }) => {
     const [mode, setMode] = useState<TMode>("Default");
-    const [isMouseDown, setIsMouseDown] = useState(false);
-    const [dragOffset, setDragOffset] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
-    const [position, setPosition] = useState<{ x: number; y: number }>();
-    const componentRef = useRef<HTMLElement>(null);
-    const {
-      handleDraggingCardDataUpdate,
-      handleDraggingCardPositionUpdate,
-      addCardRect,
-      startDragging,
-      getDropData,
-      initializeDragStates,
-    } = useContext(DragContext);
-
-    const handleMouseDown = (e: React.MouseEvent) => {
-      const componentRect = componentRef.current!.getBoundingClientRect();
-      const offsetX = e.clientX - componentRect.left;
-      const offsetY = e.clientY - componentRect.top;
-
-      setDragOffset({ x: offsetX, y: offsetY });
-      setIsMouseDown(true);
-    };
-
-    const handleMouseMove = useCallback(
-      (e: MouseEvent) => {
-        setPosition({
-          x: e.clientX - dragOffset.x,
-          y: e.clientY - dragOffset.y,
-        });
-        handleDraggingCardPositionUpdate({
-          x: e.clientX,
-          y: e.clientY,
-        });
-        handleDraggingCardDataUpdate({ id, title, content, nickname });
-        startDragging();
-      },
-      [dragOffset, handleDraggingCardPositionUpdate, handleDraggingCardDataUpdate, startDragging, id, title, content, nickname]
-    );
-
-    const handleMouseUp = () => {
-      setIsMouseDown(false);
-      const { fromPrevCardId, toCategoryId, toPrevCardId } = getDropData();
-      moveCard(id, { fromPrevCardId, toCategoryId, toPrevCardId });
-      initializeDragStates();
-    };
-
-    const moveCard = async (
-      cardId: number,
-      destinationData: {
-        fromPrevCardId: number;
-        toCategoryId: number;
-        toPrevCardId: number;
-      }
-    ) => {
-      try {
-        await fetchData(
-          `/api/cards/${cardId}`,
-          {
-            method: "PATCH",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(destinationData),
-          },
-          () => {
-            onCardChanged();
-          }
-        );
-      } catch (error) {
-        console.error(error);
-      }
-    };
-
-    const positionStyle: React.CSSProperties = position
-      ? {
-          position: "absolute",
-          left: `${position.x}px`,
-          top: `${position.y}px`,
-          zIndex: "100",
-        }
-      : {};
+    const cardRef = useRef<HTMLElement>(null);
+    const { coordinates, isDragging, draggedCard, dragPosition, dragOffset, setIsDragging, setDraggedCard, setDragOffset } = useDragContext();
 
     useEffect(() => {
-      if (!isMouseDown) {
-        return;
+      if (cardRef.current) {
+        coordinates.current
+          .find((c) => c.id === categoryId)
+          ?.cards.push({ id, mid: cardRef.current.getBoundingClientRect().y + cardRef.current.getBoundingClientRect().height / 2 });
+      }
+    }, [cardRef, coordinates, categoryId, id]);
+
+    const startDrag = (e: React.MouseEvent) => {
+      if (mode === "Default") {
+        e.preventDefault();
+        setMode("Drag");
       }
 
-      window.addEventListener("mousemove", handleMouseMove);
+      setIsDragging(true);
+      setDraggedCard({
+        categoryId,
+        id,
+        title,
+        content,
+        nickname,
+        rect: cardRef.current!.getBoundingClientRect(),
+      });
+      setDragOffset({
+        x: e.clientX - cardRef.current!.getBoundingClientRect().left,
+        y: e.clientY - cardRef.current!.getBoundingClientRect().top,
+      });
+      coordinates.current
+        .find((c) => c.id === categoryId)!
+        .cards.splice(coordinates.current.find((c) => c.id === categoryId)!.cards.findIndex((c) => c.id === id)!, 1);
+    };
 
-      return () => {
-        window.removeEventListener("mousemove", handleMouseMove);
-      };
-    }, [isMouseDown, handleMouseMove]);
-
-    useEffect(() => {
-      if (componentRef.current) {
-        addCardRect(id, componentRef.current.getBoundingClientRect());
-      }
-    }, []);
+    const dragStyle: CSSProperties =
+      isDragging && id === draggedCard?.id && dragPosition && dragOffset
+        ? { position: "absolute", zIndex: "100", top: dragPosition.y - dragOffset.y, left: dragPosition.x - dragOffset.x }
+        : {};
 
     return (
-      <article
-        className={className}
-        data-mode={mode}
-        ref={componentRef}
-        onMouseDown={handleMouseDown}
-        onMouseUp={handleMouseUp}
-        style={positionStyle}
-      >
+      <article className={className} data-mode={mode} style={dragStyle} ref={cardRef} onMouseDown={startDrag}>
         <h4 className="blind">카드</h4>
         {mode !== "Add/Edit" && (
           <div className="container">

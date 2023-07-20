@@ -1,44 +1,16 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
-import { createContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { styled } from "styled-components";
-import TCard from "../../../types/TCard";
+import { useDragContext } from "../../../contexts/DragContext";
 import TColumn from "../../../types/TColumn";
 import TTheme from "../../../types/TTheme";
 import fetchData from "../../../utils/fetch";
 import Column from "./column/Column";
 
-export const DragContext = createContext({
-  draggingCardData: {} as TCard | undefined,
-  handleDraggingCardDataUpdate: (cardData: TCard) => {},
-  handleDraggingCardPositionUpdate: (position: { x: number; y: number }) => {},
-  isDragging: false,
-  startDragging: () => {},
-  allCardRects: [] as { id: number; rect: DOMRect }[],
-  addCardRect: (id: number, rect: DOMRect) => {},
-  draggingDestinationData: { categoryId: 0, index: -1, isBefore: false } as { categoryId: number; index: number; isBefore: boolean },
-  addColumnRect: (id: number, rect: DOMRect) => {},
-  getDropData: () => {
-    return {
-      fromPrevCardId: 0,
-      toCategoryId: 0,
-      toPrevCardId: 0,
-    };
-  },
-  initializeDragStates: () => {},
-});
-
 const Board = styled(({ className }: { className?: string }) => {
   const [columns, setColumns] = useState<TColumn[]>([]);
   const [activeCardFormIdentifier, setActiveCardFormIdentifier] = useState<{ cardId: number; categoryId: number }>({ cardId: 0, categoryId: 0 });
-  const [draggingCardData, setDraggingCardData] = useState<TCard | undefined>();
-  const [draggingDestinationData, setDraggingDestinationData] = useState<{ categoryId: number; index: number; isBefore: boolean }>({
-    categoryId: 0,
-    index: -1,
-    isBefore: false,
-  });
-  const [isDragging, setIsDragging] = useState(false);
-  const [allCardRects, setAllCardRects] = useState<{ id: number; rect: DOMRect }[]>([]);
-  const [allColumnRects, setAllColumnRects] = useState<{ id: number; rect: DOMRect }[]>([]);
+  const { isDragging, setIsDragging, setDraggedCard, setDragPosition, setDragOffset } = useDragContext();
 
   useEffect(() => {
     updateColumns();
@@ -57,6 +29,26 @@ const Board = styled(({ className }: { className?: string }) => {
     );
   };
 
+  const onCardDrag = (e: React.MouseEvent) => {
+    if (!isDragging) {
+      return;
+    }
+
+    setDragPosition({
+      x: e.clientX,
+      y: e.clientY,
+      categoryId: 0,
+      index: 0,
+    });
+  };
+
+  const onCardDragEnd = () => {
+    setDraggedCard(null);
+    setDragPosition(null);
+    setDragOffset(null);
+    setIsDragging(false);
+  }
+
   const toggleAddForm = (categoryId: number) => {
     setActiveCardFormIdentifier((c) => {
       return c.categoryId === categoryId ? { cardId: 0, categoryId: 0 } : { cardId: 0, categoryId: categoryId };
@@ -71,119 +63,16 @@ const Board = styled(({ className }: { className?: string }) => {
     setActiveCardFormIdentifier({ cardId: 0, categoryId: 0 });
   };
 
-  const handleDraggingCardDataUpdate = (cardData: TCard) => {
-    setDraggingCardData(cardData);
-  };
-
-  const handleDraggingCardPositionUpdate = (position: { x: number; y: number }) => {
-    for (const cardRect of allCardRects) {
-      if (
-        cardRect.rect.left < position.x &&
-        cardRect.rect.right > position.x &&
-        cardRect.rect.top < position.y &&
-        cardRect.rect.bottom > position.y
-      ) {
-        const middleOfHeight = cardRect.rect.top + cardRect.rect.height / 2;
-        const isBefore = position.y <= middleOfHeight;
-        const column = columns.find((column) => column.cards.some((card) => card.id === cardRect.id));
-        const index = column?.cards.findIndex((card) => card.id === cardRect.id) ?? 0;
-
-        setDraggingDestinationData({ categoryId: column?.categoryId ?? 0, index, isBefore });
-        return;
-      }
-    }
-
-    for (const columnRect of allColumnRects) {
-      if (
-        columnRect.rect.left < position.x &&
-        columnRect.rect.right > position.x &&
-        columnRect.rect.top < position.y &&
-        columnRect.rect.bottom > position.y
-      ) {
-        setDraggingDestinationData({ categoryId: columnRect.id, index: -1, isBefore: false });
-        return;
-      }
-    }
-  };
-
-  const startDragging = () => {
-    setIsDragging(true);
-  };
-
-  const addCardRect = (id: number, rect: DOMRect) => {
-    setAllCardRects((c) => {
-      const index = c.findIndex((cardRect) => cardRect.id === id);
-      if (index === -1) {
-        return [...c, { id, rect }];
-      }
-      return c;
-    });
-  };
-
-  const addColumnRect = (id: number, rect: DOMRect) => {
-    setAllColumnRects((c) => {
-      const index = c.findIndex((columnRect) => columnRect.id === id);
-      if (index === -1) {
-        return [...c, { id, rect }];
-      }
-      return c;
-    });
-  };
-
-  const getDropData = () => {
-    if (!isDragging || !draggingCardData || !draggingDestinationData) {
-      return {
-        fromPrevCardId: 0,
-        toCategoryId: 0,
-        toPrevCardId: 0,
-      };
-    }
-
-    const { categoryId, index, isBefore } = draggingDestinationData;
-    const { id: cardId } = draggingCardData;
-
-    const fromPrevCardId = columns.find((column) => column.cards.some((card) => card.id === cardId))?.cards[index - 1]?.id ?? 0;
-    const toPrevCardId = isBefore
-      ? columns.find((column) => column.categoryId === categoryId)?.cards[index - 1]?.id ?? 0
-      : columns.find((column) => column.categoryId === categoryId)?.cards[index]?.id ?? 0;
-
-    return {
-      fromPrevCardId,
-      toCategoryId: categoryId,
-      toPrevCardId,
-    };
-  };
-
-  const initializeDragStates = () => {
-    setIsDragging(false);
-  };
-
   return (
-    <DragContext.Provider
-      value={{
-        draggingCardData,
-        handleDraggingCardDataUpdate,
-        handleDraggingCardPositionUpdate,
-        isDragging,
-        startDragging,
-        allCardRects,
-        addCardRect,
-        draggingDestinationData,
-        addColumnRect,
-        getDropData,
-        initializeDragStates,
-      }}
-    >
-      <ul className={className}>
-        {columns.map((column) => {
-          return (
-            <li key={column.categoryId}>
-              <Column {...{ ...column, onCardChanged: updateColumns, activeCardFormIdentifier, toggleAddForm, openEditForm, closeCardForm }} />
-            </li>
-          );
-        })}
-      </ul>
-    </DragContext.Provider>
+    <ul className={className} onMouseMove={onCardDrag} onMouseUp={onCardDragEnd}>
+      {columns.map((column) => {
+        return (
+          <li key={column.categoryId}>
+            <Column {...{ ...column, onCardChanged: updateColumns, activeCardFormIdentifier, toggleAddForm, openEditForm, closeCardForm }} />
+          </li>
+        );
+      })}
+    </ul>
   );
 })<{ theme: TTheme }>`
   display: flex;
