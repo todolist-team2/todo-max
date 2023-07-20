@@ -1,24 +1,25 @@
-import { useState } from "react";
 import { styled } from "styled-components";
 import ActionHistoryList from "./ActionHistoryList";
+import TTheme from "../../types/TTheme";
 
-const Aside = styled(({ className, isHistoryOpen, toggleHistory }: { className?: string, isHistoryOpen: boolean, toggleHistory: () => void }) => {
-  const [history, setHistory] = useState([
-    {
-      id: 1,
-      userName: "UserName",
-      body: "opopopo",
-      timeStamp: "1시간",
-    },
-  ]);
-
-  return (
-    <aside className={`${className!} ${isHistoryOpen ? "active" : ""}`}>
-      <h2 className="blind">별도</h2>
-      <ActionHistoryList {...{ history, toggleHistory }} />
-    </aside>
-  );
-})`
+const Aside = styled(
+  ({
+    className,
+    isHistoryOpen,
+    toggleHistory,
+  }: {
+    className?: string;
+    isHistoryOpen: boolean;
+    toggleHistory: () => void;
+  }) => {
+    return (
+      <aside className={`${className!} ${isHistoryOpen ? "active" : ""}`}>
+        <h2 className="blind">별도</h2>
+        <ActionHistoryList {...{ toggleHistory }} />
+      </aside>
+    );
+  }
+)<{ theme: TTheme }>`
   flex-shrink: 0;
   width: 0;
   box-sizing: border-box;
@@ -27,7 +28,7 @@ const Aside = styled(({ className, isHistoryOpen, toggleHistory }: { className?:
   box-sizing: border-box;
   overflow: hidden;
   &.active {
-    width: 390px;
+    width: 372px;
     gap: 24px;
   }
 `;
