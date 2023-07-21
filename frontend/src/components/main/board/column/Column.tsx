@@ -1,9 +1,9 @@
-import { useContext, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { styled } from "styled-components";
+import { useDragContext } from "../../../../contexts/DragContext";
 import TCard from "../../../../types/TCard";
 import TTheme from "../../../../types/TTheme";
 import fetchData from "../../../../utils/fetch";
-import { DragContext } from "../Board";
 import ColumnTitle from "./ColumnTitle";
 import Card from "./card/Card";
 import CardForm from "./card/CardForm";
@@ -31,14 +31,28 @@ const Column = styled(
     closeCardForm: () => void;
     onCardChanged: () => Promise<void>;
   }) => {
-    const componentRef = useRef<HTMLElement>(null);
-    const { draggingCardData, isDragging, draggingDestinationData, addColumnRect } = useContext(DragContext);
+    const columnRef = useRef<HTMLElement>(null);
+    const { isDragging, dragPosition, draggedCard, setCoordinates } = useDragContext();
 
     useEffect(() => {
-      if (componentRef.current) {
-        addColumnRect(categoryId, componentRef.current.getBoundingClientRect());
+      if (columnRef.current) {
+        setCoordinates((c) => {
+          return c.some((category) => category.id === categoryId)
+            ? c
+            : [
+                ...c,
+                {
+                  id: categoryId,
+                  left: columnRef.current!.getBoundingClientRect().left,
+                  right: columnRef.current!.getBoundingClientRect().right,
+                  top: columnRef.current!.getBoundingClientRect().top,
+                  bottom: columnRef.current!.getBoundingClientRect().bottom,
+                  cards: [],
+                },
+              ];
+        });
       }
-    }, []);
+    }, [columnRef, setCoordinates, categoryId]);
 
     const addCard = async ({ title, content }: { title: string; content: string }) => {
       await fetchData(
@@ -99,47 +113,33 @@ const Column = styled(
     };
 
     return (
-      <article className={className} ref={componentRef}>
+      <article className={className} ref={columnRef}>
         <ColumnTitle title={categoryName} count={cards.length} handlePlusButtonClick={() => toggleAddForm(categoryId)} />
         <ul className="card-list">
           {isActiveAddForm && (
-            <li>
+            <li key="card-form">
               <CardForm mode="add" handleCancelButtonClick={closeCardForm} handleSubmitButtonClick={addCard} />
             </li>
           )}
-          {cards.map((card, index, cards) => (
+          {cards.map((card, index) => (
             <>
-              {isDragging &&
-                draggingCardData &&
-                draggingDestinationData.categoryId === categoryId &&
-                draggingDestinationData.index === index &&
-                draggingDestinationData.isBefore && (
-                  <li>
-                    <CardShadow {...draggingCardData} />
-                  </li>
-                )}
+              {isDragging && draggedCard && dragPosition && dragPosition.categoryId === categoryId && dragPosition.index === index && (
+                <li key={`shadow-${draggedCard.id}`}>
+                  <CardShadow {...draggedCard} />
+                </li>
+              )}
               <li key={card.id}>
                 {isActiveEditForm(card.id) ? (
                   <CardForm mode="edit" originalContent={card} handleCancelButtonClick={closeCardForm} handleSubmitButtonClick={editCard} />
                 ) : (
-                  <Card {...card} onDelete={() => deleteCard(card.id)} onEdit={() => openEditForm(card.id, categoryId)} onCardChanged={onCardChanged} />
+                  <Card {...card} categoryId={categoryId} onDelete={() => deleteCard(card.id)} onEdit={() => openEditForm(card.id, categoryId)} />
                 )}
               </li>
-              {isDragging &&
-                draggingCardData &&
-                draggingDestinationData.categoryId === categoryId &&
-                draggingDestinationData.index === index &&
-                cards.length - 1 === index &&
-                !draggingDestinationData.isBefore && (
-                  <li>
-                    <CardShadow {...draggingCardData} />
-                  </li>
-                )}
             </>
           ))}
-          {isDragging && draggingCardData && draggingDestinationData.categoryId === categoryId && draggingDestinationData.index === -1 && (
+          {isDragging && draggedCard && dragPosition && dragPosition.categoryId === categoryId && dragPosition.index === cards.length && (
             <li>
-              <CardShadow {...draggingCardData} />
+              <CardShadow {...draggedCard} />
             </li>
           )}
         </ul>

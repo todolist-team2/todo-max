@@ -1,44 +1,26 @@
-/* eslint-disable @typescript-eslint/no-empty-function */
-import { createContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { styled } from "styled-components";
-import TCard from "../../../types/TCard";
+import { useDragContext } from "../../../contexts/DragContext";
 import TColumn from "../../../types/TColumn";
 import TTheme from "../../../types/TTheme";
 import fetchData from "../../../utils/fetch";
 import Column from "./column/Column";
 
-export const DragContext = createContext({
-  draggingCardData: {} as TCard | undefined,
-  handleDraggingCardDataUpdate: (cardData: TCard) => {},
-  handleDraggingCardPositionUpdate: (position: { x: number; y: number }) => {},
-  isDragging: false,
-  startDragging: () => {},
-  allCardRects: [] as { id: number; rect: DOMRect }[],
-  addCardRect: (id: number, rect: DOMRect) => {},
-  draggingDestinationData: { categoryId: 0, index: -1, isBefore: false } as { categoryId: number; index: number; isBefore: boolean },
-  addColumnRect: (id: number, rect: DOMRect) => {},
-  getDropData: () => {
-    return {
-      fromPrevCardId: 0,
-      toCategoryId: 0,
-      toPrevCardId: 0,
-    };
-  },
-  initializeDragStates: () => {},
-});
-
 const Board = styled(({ className }: { className?: string }) => {
   const [columns, setColumns] = useState<TColumn[]>([]);
   const [activeCardFormIdentifier, setActiveCardFormIdentifier] = useState<{ cardId: number; categoryId: number }>({ cardId: 0, categoryId: 0 });
-  const [draggingCardData, setDraggingCardData] = useState<TCard | undefined>();
-  const [draggingDestinationData, setDraggingDestinationData] = useState<{ categoryId: number; index: number; isBefore: boolean }>({
-    categoryId: 0,
-    index: -1,
-    isBefore: false,
-  });
-  const [isDragging, setIsDragging] = useState(false);
-  const [allCardRects, setAllCardRects] = useState<{ id: number; rect: DOMRect }[]>([]);
-  const [allColumnRects, setAllColumnRects] = useState<{ id: number; rect: DOMRect }[]>([]);
+  const {
+    coordinates,
+    isDragging,
+    draggedCard,
+    dragPosition,
+    setCoordinates,
+    setIsDragging,
+    setDraggedCard,
+    setDragPosition,
+    setDragOffset,
+    getCardCenter,
+  } = useDragContext();
 
   useEffect(() => {
     updateColumns();
@@ -53,7 +35,11 @@ const Board = styled(({ className }: { className?: string }) => {
           "Content-Type": "application/json",
         },
       },
-      setColumns
+      (data?: TColumn[]) => {
+        if (data) {
+          setColumns(data);
+        }
+      }
     );
   };
 
@@ -71,119 +57,175 @@ const Board = styled(({ className }: { className?: string }) => {
     setActiveCardFormIdentifier({ cardId: 0, categoryId: 0 });
   };
 
-  const handleDraggingCardDataUpdate = (cardData: TCard) => {
-    setDraggingCardData(cardData);
-  };
-
-  const handleDraggingCardPositionUpdate = (position: { x: number; y: number }) => {
-    for (const cardRect of allCardRects) {
-      if (
-        cardRect.rect.left < position.x &&
-        cardRect.rect.right > position.x &&
-        cardRect.rect.top < position.y &&
-        cardRect.rect.bottom > position.y
-      ) {
-        const middleOfHeight = cardRect.rect.top + cardRect.rect.height / 2;
-        const isBefore = position.y <= middleOfHeight;
-        const column = columns.find((column) => column.cards.some((card) => card.id === cardRect.id));
-        const index = column?.cards.findIndex((card) => card.id === cardRect.id) ?? 0;
-
-        setDraggingDestinationData({ categoryId: column?.categoryId ?? 0, index, isBefore });
-        return;
-      }
+  const onCardDrag = (e: React.MouseEvent) => {
+    if (!isDragging) {
+      return;
     }
 
-    for (const columnRect of allColumnRects) {
-      if (
-        columnRect.rect.left < position.x &&
-        columnRect.rect.right > position.x &&
-        columnRect.rect.top < position.y &&
-        columnRect.rect.bottom > position.y
-      ) {
-        setDraggingDestinationData({ categoryId: columnRect.id, index: -1, isBefore: false });
-        return;
-      }
-    }
-  };
+    // 카드의 중앙 좌표를 구한다.
+    const cardCenter = getCardCenter(e.clientX, e.clientY);
 
-  const startDragging = () => {
-    setIsDragging(true);
-  };
+    // 모든 카테고리의 범위 배열을 구한다.
+    const columnEdges = [
+      coordinates[0].left,
+      ...coordinates.map((category) => category.left + (category.right - category.left) / 2),
+      coordinates[coordinates.length - 1].right,
+    ];
 
-  const addCardRect = (id: number, rect: DOMRect) => {
-    setAllCardRects((c) => {
-      const index = c.findIndex((cardRect) => cardRect.id === id);
-      if (index === -1) {
-        return [...c, { id, rect }];
-      }
-      return c;
-    });
-  };
-
-  const addColumnRect = (id: number, rect: DOMRect) => {
-    setAllColumnRects((c) => {
-      const index = c.findIndex((columnRect) => columnRect.id === id);
-      if (index === -1) {
-        return [...c, { id, rect }];
-      }
-      return c;
-    });
-  };
-
-  const getDropData = () => {
-    if (!isDragging || !draggingCardData || !draggingDestinationData) {
+    // 카드의 중앙 좌표가 어느 카테고리에 속하는지 구한다.
+    const columnRanges = columnEdges.map((edge, index) => {
       return {
-        fromPrevCardId: 0,
-        toCategoryId: 0,
-        toPrevCardId: 0,
+        left: edge,
+        right: columnEdges[index + 1] + (columnEdges[index + 2] - columnEdges[index + 1]) / 2,
       };
+    });
+
+    const dragOverCategoryIndex = columnRanges.findIndex((range) => range.left <= cardCenter.x && cardCenter.x < range.right)!;
+
+    // 속한 카테고리의 카드들의 범위 배열을 구한다.
+
+    if (dragOverCategoryIndex === -1) {
+      return;
     }
 
-    const { categoryId, index, isBefore } = draggingDestinationData;
-    const { id: cardId } = draggingCardData;
+    const cardEdges = [
+      coordinates[dragOverCategoryIndex].top,
+      ...coordinates[dragOverCategoryIndex].cards.map((card) => card.mid),
+      coordinates[dragOverCategoryIndex].bottom,
+    ];
 
-    const fromPrevCardId = columns.find((column) => column.cards.some((card) => card.id === cardId))?.cards[index - 1]?.id ?? 0;
-    const toPrevCardId = isBefore
-      ? columns.find((column) => column.categoryId === categoryId)?.cards[index - 1]?.id ?? 0
-      : columns.find((column) => column.categoryId === categoryId)?.cards[index]?.id ?? 0;
+    const cardRanges = [] as { top: number; bottom: number }[];
+
+    for (const [index, edge] of cardEdges.entries()) {
+      if (index === cardEdges.length - 1) {
+        break;
+      }
+      cardRanges.push({ top: edge, bottom: cardEdges[index + 1] });
+    }
+
+    // 범위 배열에서 카드의 중앙 좌표 값이 속하는 인덱스를 구한다.
+
+    const dragOverCardIndex =
+      cardCenter.y < cardRanges[0].top
+        ? 0
+        : cardCenter.y >= cardRanges[cardRanges.length - 1].bottom
+        ? cardRanges.length - 1
+        : cardRanges.findIndex((range) => range.top <= cardCenter.y && cardCenter.y < range.bottom);
+
+    setDragPosition({
+      x: e.clientX,
+      y: e.clientY,
+      categoryId: coordinates[dragOverCategoryIndex].id,
+      index: dragOverCardIndex,
+    });
+  };
+
+  const onCardDragEnd = () => {
+    if (isDragging && draggedCard && dragPosition) {
+      const { fromPrevCardId, toPrevCardId, toCategoryId } = calculateCardMoveData(dragPosition.categoryId, dragPosition.index, draggedCard.id);
+      if (draggedCard.categoryId === toCategoryId && fromPrevCardId === toPrevCardId) {
+        initializeCoordinates();
+        initializeDragStates();
+        return;
+      }
+      requestCardMove({ fromPrevCardId, toPrevCardId, toCategoryId }, () => {
+        reorganizeCoordinates();
+        initializeDragStates();
+        updateColumns();
+      });
+    }
+  };
+
+  const calculateCardMoveData = (categoryId: number, finalIndex: number, initialId: number) => {
+    const initialCategory = columns.find((category) => category.categoryId === draggedCard!.categoryId)!;
+    const finalCategory = columns.find((category) => category.categoryId === dragPosition!.categoryId)!;
+
+    const initialIndex = initialCategory.cards.findIndex((card) => card.id === initialId);
+
+    const fromPrevCardId = initialIndex !== 0 ? initialCategory.cards[initialIndex - 1].id : 0;
+    const toPrevCardId = finalIndex !== 0 ? finalCategory.cards[finalIndex - 1].id : 0;
 
     return {
       fromPrevCardId,
-      toCategoryId: categoryId,
       toPrevCardId,
+      toCategoryId: categoryId,
     };
   };
 
+  const requestCardMove = async (cardMoveData: { fromPrevCardId: number; toPrevCardId: number; toCategoryId: number }, onRequestSent: () => void) => {
+    await fetchData(
+      `/api/cards/${draggedCard!.id}`,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(cardMoveData),
+      },
+      onRequestSent
+    );
+  };
+
   const initializeDragStates = () => {
+    setDraggedCard(null);
+    setDragPosition(null);
+    setDragOffset(null);
     setIsDragging(false);
   };
 
+  const initializeCoordinates = () => {
+    setCoordinates((c) => {
+      return c.map((category) => {
+        if (category.id === draggedCard!.categoryId) {
+          const originalIndex = columns.find((column) => column.categoryId === category.id)!.cards.findIndex((card) => card.id === draggedCard!.id);
+
+          return {
+            ...category,
+            cards: [
+              ...category.cards.slice(0, originalIndex),
+              { id: draggedCard!.id, mid: draggedCard!.rect.top + draggedCard!.rect.height / 2 },
+              ...category.cards.slice(originalIndex),
+            ],
+          };
+        }
+        return category;
+      });
+    });
+  };
+
+  const reorganizeCoordinates = () => {
+    setCoordinates((c) => {
+      return c.map((category) => {
+        if (category.id === dragPosition!.categoryId) {
+          const cardIndex = category.cards.findIndex((card) => card.id === draggedCard!.id);
+
+          return {
+            ...category,
+            cards:
+              cardIndex !== -1
+                ? category.cards
+                : [
+                    ...category.cards.slice(0, cardIndex),
+                    { id: draggedCard!.id, mid: draggedCard!.rect.top + draggedCard!.rect.height / 2 },
+                    ...category.cards.slice(cardIndex),
+                  ],
+          };
+        }
+        return category;
+      });
+    });
+  };
+
   return (
-    <DragContext.Provider
-      value={{
-        draggingCardData,
-        handleDraggingCardDataUpdate,
-        handleDraggingCardPositionUpdate,
-        isDragging,
-        startDragging,
-        allCardRects,
-        addCardRect,
-        draggingDestinationData,
-        addColumnRect,
-        getDropData,
-        initializeDragStates,
-      }}
-    >
-      <ul className={className}>
-        {columns.map((column) => {
-          return (
-            <li key={column.categoryId}>
-              <Column {...{ ...column, onCardChanged: updateColumns, activeCardFormIdentifier, toggleAddForm, openEditForm, closeCardForm }} />
-            </li>
-          );
-        })}
-      </ul>
-    </DragContext.Provider>
+    <ul className={className} onMouseMove={onCardDrag} onMouseUp={onCardDragEnd}>
+      {columns.map((column) => {
+        return (
+          <li key={column.categoryId}>
+            <Column {...{ ...column, onCardChanged: updateColumns, activeCardFormIdentifier, toggleAddForm, openEditForm, closeCardForm }} />
+          </li>
+        );
+      })}
+    </ul>
   );
 })<{ theme: TTheme }>`
   display: flex;

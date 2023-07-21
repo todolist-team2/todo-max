@@ -4,12 +4,21 @@ type Options = {
     "Content-Type": "application/json" | "application/x-www-form-urlencoded";
   };
   body?: string;
-}
+};
 
-async function fetchData<T>(url: string, options: Options, callback:(data: T) => void) {
-  const response = await fetch(url, options);
-  const data:T = await response.json();
-  callback(data);
+const serverUrl = "http://43.202.106.146:8080";
+
+async function fetchData<T>(path: string, options: Options, callback: (data?: T) => void) {
+  await fetch(serverUrl + path, options)
+    .then((response) => {
+      return response.json();
+    })
+    .then((data: T) => {
+      callback(data);
+    })
+    .catch(() => {
+      callback();
+    });
 }
 
 export default fetchData;
