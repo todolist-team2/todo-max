@@ -56,6 +56,10 @@ const Card = styled(
     }, [cardRef, setCoordinates, categoryId, id]);
 
     const startDrag = (e: React.MouseEvent) => {
+      if ((e.target as HTMLElement).closest("button")) {
+        return;
+      }
+
       if (mode === "Default") {
         e.preventDefault();
         setMode("Drag");
