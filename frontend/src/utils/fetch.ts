@@ -6,8 +6,10 @@ type Options = {
   body?: string;
 }
 
-async function fetchData<T>(url: string, options: Options, callback:(data: T) => void) {
-  const response = await fetch(url, options);
+const serverUrl = "http://43.202.106.146:8080";
+
+async function fetchData<T>(path: string, options: Options, callback:(data: T) => void) {
+  const response = await fetch(serverUrl + path, options);
   const data:T = await response.json();
   callback(data);
 }
