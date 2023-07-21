@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-empty-function */
 import { useEffect, useState } from "react";
 import { styled } from "styled-components";
 import { useDragContext } from "../../../contexts/DragContext";
@@ -119,8 +118,15 @@ const Board = styled(({ className }: { className?: string }) => {
 
   const onCardDragEnd = () => {
     if (isDragging && draggedCard && dragPosition) {
-      const cardMoveData = calculateCardMoveData(dragPosition.categoryId, dragPosition.index, draggedCard.id);
-      requestCardMove(cardMoveData, initializeDragStates);
+      const { fromPrevCardId, toPrevCardId, toCategoryId } = calculateCardMoveData(dragPosition.categoryId, dragPosition.index, draggedCard.id);
+      if (draggedCard.categoryId === toCategoryId && fromPrevCardId === toPrevCardId) {
+        initializeDragStates();
+        return;
+      }
+      requestCardMove({ fromPrevCardId, toPrevCardId, toCategoryId }, () => {
+        initializeDragStates();
+        updateColumns();
+      });
     }
   };
 
@@ -162,7 +168,11 @@ const Board = styled(({ className }: { className?: string }) => {
 
           return {
             ...category,
-            cards: [...category.cards.slice(0, originalIndex), { id: draggedCard!.id, mid: dragPosition!.y }, ...category.cards.slice(originalIndex)],
+            cards: [
+              ...category.cards.slice(0, originalIndex),
+              { id: draggedCard!.id, mid: draggedCard!.rect.top + draggedCard!.rect.height / 2 },
+              ...category.cards.slice(originalIndex),
+            ],
           };
         }
         return category;
@@ -172,7 +182,6 @@ const Board = styled(({ className }: { className?: string }) => {
     setDragPosition(null);
     setDragOffset(null);
     setIsDragging(false);
-    updateColumns();
   };
 
   return (
