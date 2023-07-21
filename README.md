@@ -86,34 +86,6 @@
         <img src="https://github.com/todolist-team2/todo-max/assets/54755633/3025641f-e91f-47af-90f3-fc2a09b941b0" width="120" alt="제페토">
       </td>
     </tr>
-    <tr>
-      <th colspan="14" align="left">
-        소개
-      </th>
-    </tr>
-    <tr>
-      <td colspan="2" width="120">
-        {알버트 소개}
-      </td>
-      <td colspan="2" width="120">
-        {젤로 소개}
-      </td>
-      <td colspan="2" width="120">
-        {위즈 소개}
-      </td>
-      <td colspan="2" width="120">
-        {브루니 소개}
-      </td>
-      <td colspan="2" width="120">
-        {토미 소개}
-      </td>
-      <td colspan="2" width="120">
-        {하나 소개}
-      </td>
-      <td colspan="2" width="120">
-        {제패토 소개}
-      </td>
-    </tr>
   </tbody>
 </table>
 
