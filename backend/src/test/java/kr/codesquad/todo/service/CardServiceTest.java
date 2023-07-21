@@ -30,6 +30,8 @@ class CardServiceTest {
 	private CardRepository cardRepository;
 	@Mock
 	private CategoryRepository categoryRepository;
+	@Mock
+	private ActionService actionService;
 
 	@InjectMocks
 	private CardService cardService;
@@ -42,20 +44,20 @@ class CardServiceTest {
 		@Test
 		void registerTest() {
 			// given
-			given(categoryRepository.existById(anyLong())).willReturn(Boolean.TRUE);
 			given(cardRepository.findHeadIdByCategoryId(anyLong())).willReturn(Optional.of(1L));
 			given(cardRepository.save(any(Card.class))).willReturn(2L);
 			willDoNothing().given(cardRepository).updateById(anyLong(), anyLong());
+			given(categoryRepository.findNameById(anyLong())).willReturn(Optional.of("TO-DO"));
 
 			// when
 			cardService.register(1L, FixtureFactory.createCardCreationRequest());
 
 			// then
 			assertAll(
-				() -> then(categoryRepository).should(times(1)).existById(anyLong()),
 				() -> then(cardRepository).should(times(1)).findHeadIdByCategoryId(anyLong()),
 				() -> then(cardRepository).should(times(1)).save(any(Card.class)),
-				() -> then(cardRepository).should(times(1)).updateById(anyLong(), anyLong())
+				() -> then(cardRepository).should(times(1)).updateById(anyLong(), anyLong()),
+				() -> then(categoryRepository).should(times(1)).findNameById(anyLong())
 			);
 		}
 
@@ -63,14 +65,13 @@ class CardServiceTest {
 		@Test
 		void givenInvalidCategoryId_thenThrowsException() {
 			// given
-			given(categoryRepository.existById(anyLong())).willReturn(Boolean.FALSE);
+			given(categoryRepository.findNameById(anyLong())).willReturn(Optional.empty());
 
 			// when & then
 			assertAll(
 				() -> assertThatThrownBy(() -> cardService.register(100L, FixtureFactory.createCardCreationRequest()))
 					.isInstanceOf(BusinessException.class)
 					.extracting("errorCode").isEqualTo(ErrorCode.CATEGORY_NOT_FOUND),
-				() -> then(categoryRepository).should(times(1)).existById(anyLong()),
 				() -> then(cardRepository).should(never()).findHeadIdByCategoryId(anyLong()),
 				() -> then(cardRepository).should(never()).save(any(Card.class)),
 				() -> then(cardRepository).should(never()).updateById(anyLong(), anyLong())
@@ -81,19 +82,19 @@ class CardServiceTest {
 		@Test
 		void givenEmptyHeadId_thenDoNotUpdate() {
 			// given
-			given(categoryRepository.existById(anyLong())).willReturn(Boolean.TRUE);
 			given(cardRepository.findHeadIdByCategoryId(anyLong())).willReturn(Optional.empty());
 			given(cardRepository.save(any(Card.class))).willReturn(2L);
+			given(categoryRepository.findNameById(anyLong())).willReturn(Optional.of("TO-DO"));
 
 			// when
 			cardService.register(1L, FixtureFactory.createCardCreationRequest());
 
 			// then
 			assertAll(
-				() -> then(categoryRepository).should(times(1)).existById(anyLong()),
 				() -> then(cardRepository).should(times(1)).findHeadIdByCategoryId(anyLong()),
 				() -> then(cardRepository).should(times(1)).save(any(Card.class)),
-				() -> then(cardRepository).should(never()).updateById(anyLong(), anyLong())
+				() -> then(cardRepository).should(never()).updateById(anyLong(), anyLong()),
+				() -> then(categoryRepository).should(times(1)).findNameById(anyLong())
 			);
 		}
 	}
@@ -106,21 +107,22 @@ class CardServiceTest {
 		@Test
 		void moveTest() {
 			// given
-			given(cardRepository.findCategoryIdById(anyLong())).willReturn(Optional.of(1L));
+			given(cardRepository.findById(anyLong())).willReturn(Optional.of(FixtureFactory.createCardData(2L, 1L)));
 			given(cardRepository.findIdByPrevId(1L, 1L)).willReturn(Optional.of(2L));
 			given(cardRepository.findIdByPrevId(5L, 2L)).willReturn(Optional.of(6L));
 			willDoNothing().given(cardRepository).updateCategoryIdAndPrevCardIdById(anyLong(), anyLong(), anyLong());
+			given(categoryRepository.findNameById(anyLong())).willReturn(Optional.of("to-do"));
 
 			// when
 			cardService.move(1L, FixtureFactory.createCardMoveRequest(1L, 2L, 5L));
 
 			// then
 			assertAll(
-				() -> then(cardRepository).should(times(1)).findCategoryIdById(anyLong()),
 				() -> then(cardRepository).should(times(2)).findIdByPrevId(anyLong(), anyLong()),
 				() -> then(cardRepository).should(times(2)).updateById(anyLong(), anyLong()),
 				() -> then(cardRepository).should(times(1))
-					.updateCategoryIdAndPrevCardIdById(anyLong(), anyLong(), anyLong())
+					.updateCategoryIdAndPrevCardIdById(anyLong(), anyLong(), anyLong()),
+				() -> then(categoryRepository).should(times(1)).findNameById(anyLong())
 			);
 		}
 
@@ -128,18 +130,18 @@ class CardServiceTest {
 		@Test
 		void givenSamePositionRequest_thenSuccess() {
 			// given
-			given(cardRepository.findCategoryIdById(anyLong())).willReturn(Optional.of(1L));
+			given(cardRepository.findById(anyLong())).willReturn(Optional.of(FixtureFactory.createCardData(2L, 0L)));
 
 			// when
 			cardService.move(1L, FixtureFactory.createCardMoveRequest(0L, 1L, 0L));
 
 			// then
 			assertAll(
-				() -> then(cardRepository).should(times(1)).findCategoryIdById(anyLong()),
 				() -> then(cardRepository).should(never()).findIdByPrevId(anyLong(), anyLong()),
 				() -> then(cardRepository).should(never()).updateById(anyLong(), anyLong()),
 				() -> then(cardRepository).should(never())
-					.updateCategoryIdAndPrevCardIdById(anyLong(), anyLong(), anyLong())
+					.updateCategoryIdAndPrevCardIdById(anyLong(), anyLong(), anyLong()),
+				() -> then(categoryRepository).should(never()).findNameById(anyLong())
 			);
 		}
 
@@ -147,21 +149,22 @@ class CardServiceTest {
 		@Test
 		void givenLastCardInCategory_thenSuccess() {
 			// given
-			given(cardRepository.findCategoryIdById(anyLong())).willReturn(Optional.of(1L));
+			given(cardRepository.findById(anyLong())).willReturn(Optional.of(FixtureFactory.createCardData(2L, 1L)));
 			given(cardRepository.findIdByPrevId(1L, 1L)).willReturn(Optional.empty());
 			given(cardRepository.findIdByPrevId(4L, 2L)).willReturn(Optional.of(6L));
 			willDoNothing().given(cardRepository).updateCategoryIdAndPrevCardIdById(anyLong(), anyLong(), anyLong());
+			given(categoryRepository.findNameById(anyLong())).willReturn(Optional.of("to-do"));
 
 			// when
 			cardService.move(1L, FixtureFactory.createCardMoveRequest(1L, 2L, 4L));
 
 			// then
 			assertAll(
-				() -> then(cardRepository).should(times(1)).findCategoryIdById(anyLong()),
 				() -> then(cardRepository).should(times(2)).findIdByPrevId(anyLong(), anyLong()),
 				() -> then(cardRepository).should(times(1)).updateById(anyLong(), anyLong()),
 				() -> then(cardRepository).should(times(1))
-					.updateCategoryIdAndPrevCardIdById(anyLong(), anyLong(), anyLong())
+					.updateCategoryIdAndPrevCardIdById(anyLong(), anyLong(), anyLong()),
+				() -> then(categoryRepository).should(times(1)).findNameById(anyLong())
 			);
 		}
 
@@ -169,21 +172,22 @@ class CardServiceTest {
 		@Test
 		void givenNothingExistsToCategoryId_thenSuccess() {
 			// given
-			given(cardRepository.findCategoryIdById(anyLong())).willReturn(Optional.of(1L));
+			given(cardRepository.findById(anyLong())).willReturn(Optional.of(FixtureFactory.createCardData(2L, 1L)));
 			given(cardRepository.findIdByPrevId(1L, 1L)).willReturn(Optional.of(2L));
 			given(cardRepository.findIdByPrevId(4L, 2L)).willReturn(Optional.empty());
 			willDoNothing().given(cardRepository).updateCategoryIdAndPrevCardIdById(anyLong(), anyLong(), anyLong());
+			given(categoryRepository.findNameById(anyLong())).willReturn(Optional.of("to-do"));
 
 			// when
 			cardService.move(1L, FixtureFactory.createCardMoveRequest(1L, 2L, 4L));
 
 			// then
 			assertAll(
-				() -> then(cardRepository).should(times(1)).findCategoryIdById(anyLong()),
 				() -> then(cardRepository).should(times(2)).findIdByPrevId(anyLong(), anyLong()),
 				() -> then(cardRepository).should(times(1)).updateById(anyLong(), anyLong()),
 				() -> then(cardRepository).should(times(1))
-					.updateCategoryIdAndPrevCardIdById(anyLong(), anyLong(), anyLong())
+					.updateCategoryIdAndPrevCardIdById(anyLong(), anyLong(), anyLong()),
+				() -> then(categoryRepository).should(times(1)).findNameById(anyLong())
 			);
 		}
 	}

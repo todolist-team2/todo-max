@@ -1,7 +1,6 @@
 package kr.codesquad.todo.service;
 
-import kr.codesquad.todo.domain.Category;
-import kr.codesquad.todo.dto.request.CategoryRequestDto;
+import kr.codesquad.todo.dto.request.CategoryRequest;
 import kr.codesquad.todo.exeption.BusinessException;
 import kr.codesquad.todo.exeption.ErrorCode;
 import kr.codesquad.todo.repository.CardRepository;
@@ -20,17 +19,16 @@ public class CategoryService {
 		this.cardRepository = cardRepository;
 	}
 
-	// TODO: 카테고리도 활동 기록에 저장해야 하는지?
 	// 카테고리 추가
-	public Long saveCategory(CategoryRequestDto categoryRequestDto) {
+	@Transactional
+	public Long createCategory(CategoryRequest categoryRequest) {
 		Long userAccountId = 1L;
-		return categoryRepository.save(categoryRequestDto.toEntity(userAccountId));
+		return categoryRepository.save(categoryRequest.toEntity(userAccountId));
 	}
-
 
 	// 카테고리 수정
 	@Transactional
-	public Long modifyCategory(Long categoryId, CategoryRequestDto categoryRequestDto) {
+	public void updateCategory(Long categoryId, CategoryRequest categoryRequest) {
 		// existsById() 메소드를 사용해서 해당 카테고리가 존재하는지 확인
 		if (!categoryRepository.existById(categoryId)) {
 			throw new BusinessException(ErrorCode.CATEGORY_NOT_FOUND);
@@ -38,13 +36,12 @@ public class CategoryService {
 
 		// 존재한다면 해당 카테고리를 수정
 		Long userAccountId = 1L;
-		return categoryRepository.update(categoryId, categoryRequestDto.toEntity(userAccountId));
+		categoryRepository.update(categoryId, categoryRequest.toEntity(userAccountId));
 	}
-
 
 	// 카테고리 삭제
 	@Transactional
-	public void removeCategory(Long categoryId) {
+	public void deleteCategory(Long categoryId) {
 		// existsById() 메소드를 사용해서 해당 카테고리가 존재하는지 확인
 		if (!categoryRepository.existById(categoryId)) {
 			throw new BusinessException(ErrorCode.CATEGORY_NOT_FOUND);
@@ -54,7 +51,6 @@ public class CategoryService {
 		// 존재한다면 해당 카테고리를 삭제
 		categoryRepository.delete(categoryId);
 
-		// TODO: 모든 카드 삭제에 대한 활동 기록?
 		// 해당 카테고리 아아디를 가진 카드들 전부 삭제
 		cardRepository.deleteAllByCategoryId(categoryId);
 	}
