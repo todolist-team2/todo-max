@@ -117,7 +117,7 @@ const Column = styled(
         <ColumnTitle title={categoryName} count={cards.length} handlePlusButtonClick={() => toggleAddForm(categoryId)} />
         <ul className="card-list">
           {isActiveAddForm && (
-            <li>
+            <li key="card-form">
               <CardForm mode="add" handleCancelButtonClick={closeCardForm} handleSubmitButtonClick={addCard} />
             </li>
           )}

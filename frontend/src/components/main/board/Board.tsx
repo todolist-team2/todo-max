@@ -35,7 +35,11 @@ const Board = styled(({ className }: { className?: string }) => {
           "Content-Type": "application/json",
         },
       },
-      setColumns
+      (data?: TColumn[]) => {
+        if (data) {
+          setColumns(data);
+        }
+      }
     );
   };
 
@@ -120,10 +124,12 @@ const Board = styled(({ className }: { className?: string }) => {
     if (isDragging && draggedCard && dragPosition) {
       const { fromPrevCardId, toPrevCardId, toCategoryId } = calculateCardMoveData(dragPosition.categoryId, dragPosition.index, draggedCard.id);
       if (draggedCard.categoryId === toCategoryId && fromPrevCardId === toPrevCardId) {
+        initializeCoordinates();
         initializeDragStates();
         return;
       }
       requestCardMove({ fromPrevCardId, toPrevCardId, toCategoryId }, () => {
+        reorganizeCoordinates();
         initializeDragStates();
         updateColumns();
       });
@@ -161,6 +167,13 @@ const Board = styled(({ className }: { className?: string }) => {
   };
 
   const initializeDragStates = () => {
+    setDraggedCard(null);
+    setDragPosition(null);
+    setDragOffset(null);
+    setIsDragging(false);
+  };
+
+  const initializeCoordinates = () => {
     setCoordinates((c) => {
       return c.map((category) => {
         if (category.id === draggedCard!.categoryId) {
@@ -178,10 +191,29 @@ const Board = styled(({ className }: { className?: string }) => {
         return category;
       });
     });
-    setDraggedCard(null);
-    setDragPosition(null);
-    setDragOffset(null);
-    setIsDragging(false);
+  };
+
+  const reorganizeCoordinates = () => {
+    setCoordinates((c) => {
+      return c.map((category) => {
+        if (category.id === dragPosition!.categoryId) {
+          const cardIndex = category.cards.findIndex((card) => card.id === draggedCard!.id);
+
+          return {
+            ...category,
+            cards:
+              cardIndex !== -1
+                ? category.cards
+                : [
+                    ...category.cards.slice(0, cardIndex),
+                    { id: draggedCard!.id, mid: draggedCard!.rect.top + draggedCard!.rect.height / 2 },
+                    ...category.cards.slice(cardIndex),
+                  ],
+          };
+        }
+        return category;
+      });
+    });
   };
 
   return (
